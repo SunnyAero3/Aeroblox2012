@@ -1,1 +1,36 @@
-<!-- placeholder: empty file -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>People - Revival</title>
+    <link rel="stylesheet" href="css/2012-theme.css">
+</head>
+<body>
+    <div class="header"><h1>Revival</h1></div>
+    <div class="nav-bar">
+        <a href="index.html">Home</a>
+        <a href="games.html">Games</a>
+        <a href="my-roblox.html">My Character</a>
+        <a href="people.html">People</a>
+        <a href="inbox.html">Inbox</a>
+        <a href="login.html" id="nav-login">Login / Sign Up</a>
+    </div>
+
+    <div class="glass-container">
+        <h2>Search Users</h2>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="search-input" placeholder="Search for a username..." style="margin: 0; flex: 1;">
+            <button class="btn-aero" onclick="searchUsers()">Search</button>
+        </div>
+
+        <div id="people-results">
+            <!-- Supabase user search results will appear here -->
+        </div>
+    </div>
+
+    <!-- Supabase Core & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
