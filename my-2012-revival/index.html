@@ -1,1 +1,37 @@
-<!-- placeholder: empty file -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Revival - Home</title>
+    <link rel="stylesheet" href="css/2012-theme.css">
+</head>
+<body>
+    <div class="header"><h1>Revival</h1></div>
+    <div class="nav-bar">
+        <a href="index.html">Home</a>
+        <a href="games.html">Games</a>
+        <a href="my-roblox.html">My Character</a>
+        <a href="people.html">People</a>
+        <a href="inbox.html">Inbox</a>
+        <a href="login.html" id="nav-login">Login / Sign Up</a>
+    </div>
+
+    <div class="glass-container">
+        <h2>Welcome to the Revival</h2>
+        <p>This is the front-end UI prototype. Supabase scripts are linked and ready!</p>
+        <br>
+        <div id="news-feed">
+            <div style="background: rgba(255,255,255,0.4); padding: 15px; border-radius: 8px; border: 1px solid white;">
+                <h3 style="margin-top:0; color: #005bb5;">Site Update 1: Backend Prep</h3>
+                <p style="font-size: 13px; color: #555;">Posted by Admin</p>
+                <p>All HTML files are now wired up to receive the Supabase JavaScript files.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase Core & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
