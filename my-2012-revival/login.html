@@ -1,1 +1,50 @@
-<!-- placeholder: empty file -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Revival</title>
+    <link rel="stylesheet" href="css/2012-theme.css">
+</head>
+<body>
+    <div class="header"><h1>Revival</h1></div>
+    <div class="nav-bar">
+        <a href="index.html">Home</a>
+        <a href="games.html">Games</a>
+        <a href="my-roblox.html">My Character</a>
+        <a href="people.html">People</a>
+        <a href="inbox.html">Inbox</a>
+        <a href="login.html" id="nav-login">Login / Sign Up</a>
+    </div>
+
+    <div class="glass-container" style="display: flex; gap: 40px;">
+        <!-- LOGIN SECTION -->
+        <div style="flex: 1;">
+            <h2>Login</h2>
+            <p id="log-msg" style="color: #d93025; font-size: 13px; height: 15px;"></p>
+            <label>Email:</label><br>
+            <input type="email" id="log-email" placeholder="Enter Email"><br>
+            <label>Password:</label><br>
+            <input type="password" id="log-pass" placeholder="Enter Password"><br>
+            <button class="btn-aero" onclick="login()">Login</button>
+        </div>
+
+        <!-- SIGN UP SECTION -->
+        <div style="flex: 1; border-left: 1px solid rgba(255,255,255,0.8); padding-left: 40px;">
+            <h2>Sign Up</h2>
+            <p id="reg-msg" style="color: #3a8215; font-size: 13px; height: 15px;"></p>
+            <label>Username:</label><br>
+            <input type="text" id="reg-user" placeholder="Choose a Username"><br>
+            <label>Email:</label><br>
+            <input type="email" id="reg-email" placeholder="Enter Email"><br>
+            <label>Password:</label><br>
+            <input type="password" id="reg-pass" placeholder="Choose a Password"><br>
+            <button class="btn-aero" onclick="register()">Create Account</button>
+        </div>
+    </div>
+
+    <!-- Supabase Core & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
