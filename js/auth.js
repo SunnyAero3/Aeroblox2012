@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 1. Check if username is already taken
-            const { data: existingUser, error: searchError } = await supabase
+            const { data: existingUser, error: searchError } = await supabaseClient
                 .from('users')
                 .select('*')
                 .eq('username', username);
@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 2. Create the account (Tickets and Robux default to 100 and 10 automatically)
-            const { error } = await supabase
+            // 2. Create the account (Tickets and Robux default automatically)
+            const { error } = await supabaseClient
                 .from('users')
                 .insert([{ username: username, password: password }]);
 
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Search database for matching username AND password
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('users')
                 .select('*')
                 .eq('username', username)
