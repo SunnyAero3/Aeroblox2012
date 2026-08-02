@@ -2,35 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>People - Revival</title>
-    <link rel="stylesheet" href="css/2012-theme.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroBLOX - People</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="header"><h1>Revival</h1></div>
-    <div class="nav-bar">
-        <a href="index.html">Home</a>
-        <a href="games.html">Games</a>
-        <a href="my-roblox.html">My Character</a>
-        <a href="people.html">People</a>
-        <a href="inbox.html">Inbox</a>
-        <a href="login.html" id="nav-login">Login / Sign Up</a>
+    <div class="top-nav">
+        <h1>AeroBLOX</h1>
+        <div class="nav-links">
+            <a href="index.html">Home</a> | 
+            <a href="games.html">Games</a> | 
+            <a href="my-roblox.html">My Character</a> | 
+            <a href="people.html">People</a>
+        </div>
     </div>
 
-    <div class="glass-container">
+    <div class="main-container">
         <h2>Search Users</h2>
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <input type="text" id="search-input" placeholder="Search for a username..." style="margin: 0; flex: 1;">
-            <button class="btn-aero" onclick="searchUsers()">Search</button>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search for a user...">
+            <button id="search-btn" class="btn-aero">Search</button>
         </div>
 
-        <div id="people-results">
-            <!-- Supabase user search results will appear here -->
+        <div class="results-grid" id="results-grid">
+            <!-- Search results will populate here -->
         </div>
     </div>
 
-    <!-- Supabase Core & Auth -->
+    <footer>
+        <p>&copy; 2026 AeroBLOX. All rights reserved.</p>
+    </footer>
+
+    <!-- Supabase Core Library & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Page Specific Script (Coming Soon) -->
+    <!-- <script src="js/people.js"></script> -->
 </body>
 </html>
