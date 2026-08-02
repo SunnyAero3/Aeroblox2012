@@ -2,58 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Character - Revival</title>
-    <link rel="stylesheet" href="css/2012-theme.css">
-    <link rel="stylesheet" href="css/avatar-editor.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroBLOX - My Character</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="header"><h1>Revival</h1></div>
-    <div class="nav-bar">
-        <a href="index.html">Home</a>
-        <a href="games.html">Games</a>
-        <a href="my-roblox.html">My Character</a>
-        <a href="people.html">People</a>
-        <a href="inbox.html">Inbox</a>
-        <a href="login.html" id="nav-login">Login / Sign Up</a>
-    </div>
-
-    <div class="glass-container">
-        <h2>Avatar Customizer</h2>
-        <div class="avatar-layout">
-            <div class="avatar-preview-box">
-                <div id="avatar-render-area" style="width: 150px; height: 200px; background: rgba(0,0,0,0.05); margin: 0 auto; border: 2px dashed rgba(255,255,255,0.8); border-radius: 10px; displa[...]
-                    [2D Avatar Render]
-                </div>
-                <h4 style="color: #005bb5; margin-top: 20px;">Body Colors</h4>
-                <select id="body-part" style="padding: 5px; border-radius: 5px; width: 100%;">
-                    <option value="head">Head</option>
-                    <option value="torso">Torso</option>
-                    <option value="left_arm">Left Arm</option>
-                    <option value="right_arm">Right Arm</option>
-                    <option value="left_leg">Left Leg</option>
-                    <option value="right_leg">Right Leg</option>
-                </select>
-                <div class="color-grid" id="color-grid"></div>
-            </div>
-
-            <div class="inventory-box">
-                <div class="inv-tabs">
-                    <div class="inv-tab active" onclick="switchTab('hats')">Hats</div>
-                    <div class="inv-tab" onclick="switchTab('shirts')">Shirts</div>
-                    <div class="inv-tab" onclick="switchTab('pants')">Pants</div>
-                    <div class="inv-tab" onclick="switchTab('faces')">Faces</div>
-                </div>
-                <div class="item-grid" id="item-grid">
-                    <!-- Supabase will load items here -->
-                </div>
-            </div>
+    <div class="top-nav">
+        <h1>AeroBLOX</h1>
+        <div class="nav-links">
+            <a href="index.html">Home</a> | 
+            <a href="games.html">Games</a> | 
+            <a href="my-roblox.html">My Character</a> | 
+            <a href="people.html">People</a> | 
+            <a href="inbox.html">Inbox</a>
         </div>
     </div>
 
-    <!-- Supabase Core, Auth, and Avatar Editor -->
+    <div class="main-container dashboard">
+        <h2 id="welcome-message">Hello, User!</h2>
+        
+        <div class="character-stats">
+            <p><strong>Tickets (Tx):</strong> <span id="ticket-balance">Loading...</span></p>
+            <p><strong>Status:</strong> <span id="user-status">Online</span></p>
+        </div>
+
+        <div class="avatar-viewer">
+            <h3>Your Avatar</h3>
+            <div class="avatar-render-box">
+                <!-- Character image will load here -->
+            </div>
+            <button class="btn-aero">Customize Character</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 AeroBLOX. All rights reserved.</p>
+    </footer>
+
+    <!-- Supabase Core Library & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/avatar.js"></script>
+    <!-- Page Specific Script (Coming Soon) -->
+    <!-- <script src="js/profile.js"></script> -->
 </body>
 </html>
