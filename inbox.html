@@ -2,38 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AeroBLOX - Inbox</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .inbox-container { display: flex; margin-top: 15px; border: 1px solid #a6a6a6; background: #fff; }
+        .inbox-sidebar { width: 150px; background: #f2f2f2; border-right: 1px solid #ccc; padding: 10px; }
+        .inbox-sidebar a { display: block; padding: 5px; color: #003366; text-decoration: none; font-weight: bold; font-size: 12px; margin-bottom: 5px; }
+        .inbox-sidebar a:hover, .inbox-sidebar a.active { background: #d9e6f2; border-radius: 3px; }
+        .inbox-content { flex-grow: 1; padding: 15px; }
+        .message-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .message-table th { background: linear-gradient(to bottom, #4c5d73, #2d3846); color: white; padding: 6px; text-align: left; }
+        .message-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .message-table tr:hover { background: #f9f9f9; cursor: pointer; }
+        .unread { font-weight: bold; }
+    </style>
 </head>
 <body>
-    <div class="top-nav">
-        <h1>AeroBLOX</h1>
-        <div class="nav-links">
-            <a href="index.html">Home</a> | 
-            <a href="games.html">Games</a> | 
-            <a href="my-roblox.html">My Character</a> | 
-            <a href="inbox.html">Inbox</a>
-        </div>
-    </div>
 
     <div class="main-container">
-        <h2>Your Messages</h2>
+        <!-- Re-use your existing top-nav and sub-nav here -->
         
-        <div class="messages-list" id="messages-list">
-            <p>Loading messages...</p>
-            <!-- Message items will load here -->
+        <div class="top-nav" style="background: linear-gradient(to bottom, #004080, #002b55); color: #fff; text-align: center; padding: 15px 0;">
+            <h1 style="margin: 0; font-size: 28px;">AeroBLOX</h1>
+        </div>
+        <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; font-weight: bold;">
+            <a href="index.html" style="color: #fff; text-decoration: none; margin-right: 15px;">Home</a>
+            <a href="inbox.html" style="color: #fff; text-decoration: none;">Inbox</a>
+        </div>
+
+        <!-- Inbox Layout -->
+        <div class="inbox-container">
+            <div class="inbox-sidebar">
+                <a href="#" class="active" onclick="loadMessages('inbox')">Inbox</a>
+                <a href="#" onclick="loadMessages('sent')">Sent</a>
+                <a href="#" style="margin-top: 15px; color: #d68910;" onclick="showCompose()">+ Compose</a>
+            </div>
+            
+            <div class="inbox-content" id="inbox-view">
+                <h2 style="margin-top: 0; font-size: 18px; color: #333;" id="inbox-title">My Inbox</h2>
+                <table class="message-table">
+                    <thead>
+                        <tr>
+                            <th width="20%">From</th>
+                            <th width="50%">Subject</th>
+                            <th width="30%">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="message-list">
+                        <!-- Messages loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Compose View (Hidden by default) -->
+            <div class="inbox-content" id="compose-view" style="display: none;">
+                <h2 style="margin-top: 0; font-size: 18px;">Send a Message</h2>
+                <input type="text" id="msg-to" placeholder="Recipient Username" style="width: 100%; padding: 6px; margin-bottom: 10px;">
+                <input type="text" id="msg-subject" placeholder="Subject" style="width: 100%; padding: 6px; margin-bottom: 10px;">
+                <textarea id="msg-body" placeholder="Write your message here..." style="width: 100%; height: 150px; padding: 6px; margin-bottom: 10px; resize: none;"></textarea>
+                <button class="btn-classic" onclick="sendMessage()">Send Message</button>
+                <button class="btn-classic" onclick="loadMessages('inbox')" style="background: #eee; color: #333;">Cancel</button>
+            </div>
+
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 AeroBLOX. All rights reserved.</p>
-    </footer>
-
-    <!-- Supabase Core Library & Config -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/config.js"></script>
-    <!-- Page Specific Script (Coming Soon) -->
-    <!-- <script src="js/inbox.js"></script> -->
+    <script src="js/auth.js"></script>
+    <script src="js/inbox.js"></script>
 </body>
 </html>
