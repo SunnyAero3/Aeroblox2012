@@ -1,90 +1,86 @@
-// Load User Data (Currency, Status, etc.) on Dashboard
 async function loadDashboardData() {
-    const loggedInUser = localStorage.getItem("aeroUser");
-
-    const topUsername = document.getElementById("top-username-display");
-    const greetingHeader = document.getElementById("greeting-header");
-    const topRobux = document.getElementById("top-robux-count");
-    const topTickets = document.getElementById("top-tickets-count");
-    const dashRobux = document.getElementById("dash-robux");
-    const dashTickets = document.getElementById("dash-tickets");
-    const statusInput = document.getElementById("status-input");
-    const feedContainer = document.getElementById("feed-container");
-
-    if (!loggedInUser) return;
-
-    // Update Header Display
-    if (topUsername) topUsername.innerText = `Hi, ${loggedInUser}`;
-    if (greetingHeader) greetingHeader.innerText = `Hi, ${loggedInUser}`;
-
-    // Query user profile data from Supabase
-    const { data: user, error } = await _supabase
-        .from('users')
-        .select('robux, tickets, status')
-        .eq('username', loggedInUser)
-        .single();
-
-    if (error) {
-        console.error("Error loading dashboard data:", error);
+    const username = localStorage.getItem("aeroUser");
+    if (!username) {
+        window.location.href = "login.html";
         return;
     }
 
-    if (user) {
-        const robuxVal = user.robux !== undefined ? user.robux : 10;
-        const ticketsVal = user.tickets !== undefined ? user.tickets : 100;
+    // Set greeting
+    const topUsername = document.getElementById("top-username-display");
+    const dashGreeting = document.getElementById("dash-greeting");
+    if (topUsername) topUsername.innerText = `Hi, ${username}`;
+    if (dashGreeting) dashGreeting.innerText = `Hi, ${username}`;
 
-        if (topRobux) topRobux.innerText = robuxVal;
-        if (topTickets) topTickets.innerText = ticketsVal;
-        if (dashRobux) dashRobux.innerText = robuxVal;
-        if (dashTickets) dashTickets.innerText = ticketsVal;
+    // Update Last Online in database on home load
+    await _supabase
+        .from('users')
+        .update({ last_online: new Date().toISOString() })
+        .eq('username', username);
 
-        if (user.status) {
-            if (statusInput) statusInput.value = user.status;
-            if (feedContainer) {
-                feedContainer.innerHTML = `
-                    <div style="border-left: 3px solid #003366; padding-left: 10px; margin-bottom: 10px;">
-                        <strong style="color: #003366; font-size: 13px;">${loggedInUser}</strong> 
-                        <span style="font-size: 12px; color: #333;">"${user.status}"</span>
-                    </div>
-                `;
-            }
-        }
+    // Get User Data
+    const { data: user, error } = await _supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .single();
+
+    if (error || !user) return;
+
+    // Currency
+    const robuxVal = user.robux ?? 10;
+    const ticketsVal = user.tickets ?? 100;
+    if (document.getElementById("top-robux-count")) document.getElementById("top-robux-count").innerText = robuxVal;
+    if (document.getElementById("top-tickets-count")) document.getElementById("top-tickets-count").innerText = ticketsVal;
+    if (document.getElementById("dash-robux-count")) document.getElementById("dash-robux-count").innerText = robuxVal;
+    if (document.getElementById("dash-tickets-count")) document.getElementById("dash-tickets-count").innerText = ticketsVal;
+
+    // Dates
+    if (document.getElementById("dash-join-date")) {
+        document.getElementById("dash-join-date").innerText = user.created_at ? new Date(user.created_at).toLocaleDateString() : "Classic";
+    }
+
+    // Feed
+    if (user.status && user.status.trim() !== "") {
+        document.getElementById("feed-display").innerText = `"${user.status}"`;
+    }
+
+    // Render Avatar Colors
+    const av = user.avatar || { head: "#F5CD2F", torso: "#0D69AC", left_arm: "#F5CD2F", right_arm: "#F5CD2F", left_leg: "#A2A8A8", right_leg: "#A2A8A8" };
+    document.getElementById("dash-av-head").style.backgroundColor = av.head;
+    document.getElementById("dash-av-torso").style.backgroundColor = av.torso;
+    document.getElementById("dash-av-l-arm").style.backgroundColor = av.left_arm;
+    document.getElementById("dash-av-r-arm").style.backgroundColor = av.right_arm;
+    document.getElementById("dash-av-l-leg").style.backgroundColor = av.left_leg;
+    document.getElementById("dash-av-r-leg").style.backgroundColor = av.right_leg;
+
+    // Render Badges
+    const badgeContainer = document.getElementById("dash-badges-container");
+    const badges = user.badges && user.badges.length > 0 ? user.badges : ["Welcome to AeroBLOX"];
+    if (badgeContainer) {
+        badgeContainer.innerHTML = badges.map(b => `
+            <div class="item-card">
+                <div class="item-thumb" style="background: #fff8c4; font-weight: bold; color: #b88600;">★</div>
+                <div style="font-weight: bold; overflow: hidden; text-overflow: ellipsis;">${b}</div>
+            </div>
+        `).join('');
     }
 }
 
-// Update User Status in Supabase
 async function updateStatus() {
-    const loggedInUser = localStorage.getItem("aeroUser");
-    const statusInput = document.getElementById("status-input");
-    const msg = document.getElementById("status-update-msg");
+    const username = localStorage.getItem("aeroUser");
+    const input = document.getElementById("status-input");
+    if (!input || !input.value.trim() || !username) return;
 
-    if (!loggedInUser) {
-        alert("You must be logged in to update your status!");
-        return;
-    }
-
-    const newStatus = statusInput.value.trim();
+    const newStatus = input.value.trim();
 
     const { error } = await _supabase
         .from('users')
         .update({ status: newStatus })
-        .eq('username', loggedInUser);
+        .eq('username', username);
 
-    if (error) {
-        console.error("Error updating status:", error);
-        if (msg) {
-            msg.style.color = "red";
-            msg.innerText = "Failed to update status.";
-            msg.style.display = "block";
-        }
-    } else {
-        if (msg) {
-            msg.style.color = "green";
-            msg.innerText = "Status updated!";
-            msg.style.display = "block";
-            setTimeout(() => { msg.style.display = "none"; }, 3000);
-        }
-        loadDashboardData();
+    if (!error) {
+        document.getElementById("feed-display").innerText = `"${newStatus}"`;
+        input.value = "";
     }
 }
 
