@@ -1,7 +1,6 @@
 // --- 1. INITIALIZE SUPABASE ---
-// REPLACE THESE WITH YOUR ACTUAL SUPABASE URL AND ANON KEY
-const supabaseUrl = 'YOUR_SUPABASE_URL_HERE';
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY_HERE';
+const supabaseUrl = 'https://hvxezfwdgskwldcfvtpm.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2eGV6ZndkZ3Nrd2xkY2Z2dHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjgzOTMsImV4cCI6MjEwMTI0NDM5M30.YOq9nvgmEszFvfVfYUetSdfcrJGofFuozHSmH57rmXY';
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // --- 2. DYNAMIC UI & CONSOLE LOGGING (RUNS ON EVERY PAGE LOAD) ---
@@ -39,6 +38,12 @@ async function loginUser() {
     const password = document.getElementById('password-input').value;
     const statusMsg = document.getElementById('status-message');
 
+    if (!username || !password) {
+        statusMsg.style.color = "red";
+        statusMsg.innerText = "Please enter both username and password.";
+        return;
+    }
+
     // Query Supabase for the user
     const { data, error } = await _supabase
         .from('users')
@@ -51,11 +56,11 @@ async function loginUser() {
         // Save session locally
         localStorage.setItem("aeroUser", username);
         console.log("Login successful!");
-        window.location.reload(); // Refresh to update buttons
+        window.location.reload(); // Refresh to update UI & buttons
     } else {
         statusMsg.style.color = "red";
         statusMsg.innerText = "Invalid username or password!";
-        console.error("Login failed.");
+        console.error("Login failed:", error);
     }
 }
 
@@ -66,11 +71,12 @@ async function registerUser() {
     const statusMsg = document.getElementById('status-message');
 
     if (!username || !password) {
+        statusMsg.style.color = "red";
         statusMsg.innerText = "Please enter both username and password.";
         return;
     }
 
-    // Insert new user into database with 10 Robux and 100 Tickets
+    // Insert new user into database with starting currency (10 Robux, 100 Tickets)
     const { data, error } = await _supabase
         .from('users')
         .insert([{ username: username, password: password, robux: 10, tickets: 100 }]);
@@ -78,7 +84,7 @@ async function registerUser() {
     if (error) {
         statusMsg.style.color = "red";
         statusMsg.innerText = "Error creating account!";
-        console.error(error);
+        console.error("Registration error:", error);
     } else {
         // Log them in immediately after registering
         localStorage.setItem("aeroUser", username);
@@ -90,5 +96,5 @@ async function registerUser() {
 function logoutUser() {
     localStorage.removeItem("aeroUser");
     console.log("Logged out successfully.");
-    window.location.reload(); // Refresh page to bring back login boxes
+    window.location.reload(); // Refresh page to return to login state
 }
