@@ -61,7 +61,7 @@
         <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
             <a href="index.html" style="color: #fff; text-decoration: none;">Home</a>
             <a href="#" style="color: #fff; text-decoration: none;">Places</a>
-            <a href="#" style="color: #fff; text-decoration: none;">Inbox</a>
+            <a href="inbox.html" style="color: #fff; text-decoration: none;">Inbox</a>
             <a href="#" style="color: #fff; text-decoration: none;">Account</a>
             <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
             <a href="#" style="color: #fff; text-decoration: none;">Friends</a>
@@ -109,16 +109,16 @@
                 <!-- Best Friends Box -->
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
                     <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Best Friends</div>
-                    <div class="module-content" style="padding: 10px;">
-                        <p style="font-size: 11px; color: #666; margin: 0;">No best friends listed.</p>
+                    <div class="module-content" id="best-friends-container" style="padding: 10px;">
+                        <p style="font-size: 11px; color: #666; margin: 0;">Loading...</p>
                     </div>
                 </div>
 
                 <!-- Friends Box -->
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
-                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Friends (0)</div>
-                    <div class="module-content" style="padding: 10px;">
-                        <p style="font-size: 11px; color: #666; margin: 0;">No friends added.</p>
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Friends</div>
+                    <div class="module-content" id="friends-container" style="padding: 10px;">
+                        <p style="font-size: 11px; color: #666; margin: 0;">Loading...</p>
                     </div>
                 </div>
 
@@ -198,6 +198,8 @@
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
+    <script src="js/friends.js"></script>
+    <script src="js/sound.js"></script>
     <script src="js/music.js"></script>
 </body>
 </html>
