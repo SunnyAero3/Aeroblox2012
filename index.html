@@ -10,11 +10,11 @@
         .badge-grid, .inventory-grid, .friends-grid, .gamepass-grid { 
             display: flex; gap: 8px; flex-wrap: wrap; 
         }
-        .item-card { width: 75px; border: 1px solid #ccc; padding: 4px; background: #fafafa; text-align: center; font-size: 10px; }
-        .item-thumb { width: 100%; height: 50px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd; }
+        .item-card { width: 95px; border: 1px solid #ccc; padding: 6px; background: #fafafa; text-align: center; font-size: 10px; }
+        .item-thumb { width: 100%; height: 45px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd; }
         .gamepass-card { width: 170px; border: 1px solid #ccc; padding: 8px; background: #fdfdfd; font-size: 11px; line-height: 1.4; }
 
-        /* Avatar Visual Box & Hover Animation */
+        /* Avatar Box & Hover Animation */
         .avatar-render-box { width: 110px; height: 140px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; border: 1px solid #ccc; padding: 5px; cursor: pointer; transition: transform 0.15s ease; }
         .avatar-render-box:hover { transform: scale(1.04); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
         .av-head { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #333; margin-bottom: 2px; }
@@ -45,7 +45,7 @@
 </head>
 <body>
 
-    <!-- Avatar Enlarge Lightbox Modal -->
+    <!-- Avatar Lightbox Modal -->
     <div id="avatar-modal" class="modal-overlay" onclick="closeAvatarModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 style="margin-top: 0; color: #003366; font-size: 16px;">My Avatar</h3>
