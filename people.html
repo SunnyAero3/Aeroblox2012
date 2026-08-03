@@ -2,41 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AeroBLOX - People</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="top-nav">
-        <h1>AeroBLOX</h1>
-        <div class="nav-links">
-            <a href="index.html">Home</a> | 
-            <a href="games.html">Games</a> | 
-            <a href="my-roblox.html">My Character</a> | 
-            <a href="people.html">People</a>
-        </div>
-    </div>
 
     <div class="main-container">
-        <h2>Search Users</h2>
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Search for a user...">
-            <button id="search-btn" class="btn-aero">Search</button>
+        <!-- Navigation Bar -->
+        <div class="top-nav">
+            <h1>AeroBLOX</h1>
+            <div class="nav-links">
+                <a href="index.html">My AeroBLOX</a> | 
+                <a href="people.html">People</a>
+            </div>
+            <!-- Header Logout Button -->
+            <button id="logout-btn" class="btn-classic" style="display: none; float: right; margin-top: -5px;" onclick="logoutUser()">Logout</button>
         </div>
-
-        <div class="results-grid" id="results-grid">
-            <!-- Search results will populate here -->
+        
+        <!-- People List Module -->
+        <div class="module-box">
+            <div class="module-header">People on AeroBLOX</div>
+            <div class="module-content">
+                <!-- User cards will dynamically load here -->
+                <div id="people-list">
+                    <p style="text-align: center; font-weight: bold; padding: 20px; color: #555;">Loading users from database...</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 AeroBLOX. All rights reserved.</p>
-    </footer>
-
-    <!-- Supabase Core Library & Config -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/config.js"></script>
-    <!-- Page Specific Script (Coming Soon) -->
-    <!-- <script src="js/people.js"></script> -->
+    <!-- Scripts (auth.js MUST load first so _supabase is ready) -->
+    <script src="js/auth.js"></script>
+    <script src="js/people.js"></script>
+    <script src="js/music.js"></script>
 </body>
 </html>
