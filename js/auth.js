@@ -1,85 +1,37 @@
-// --- 1. INITIALIZE SUPABASE ---
-const supabaseUrl = 'https://hvxezfwdgskwldcfvtpm.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2eGV6ZndkZ3Nrd2xkY2Z2dHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjgzOTMsImV4cCI6MjEwMTI0NDM5M30.YOq9nvgmEszFvfVfYUetSdfcrJGofFuozHSmH57rmXY';
-const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+// Initialize Supabase Client (Ensure credentials match your project setup)
+const SUPABASE_URL = "https://YOUR_SUPABASE_ID.supabase.co";
+const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
 
-// --- 2. LOGIN FUNCTION ---
-async function loginUser() {
-    const usernameInput = document.getElementById('username-input');
-    const passwordInput = document.getElementById('password-input');
-    const statusMsg = document.getElementById('status-message');
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    if (!usernameInput || !passwordInput) return;
-
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!username || !password) {
-        if (statusMsg) {
-            statusMsg.style.color = "red";
-            statusMsg.innerText = "Please enter both username and password.";
-        }
-        return;
-    }
-
-    const { data, error } = await _supabase
-        .from('users')
-        .select('*')
-        .eq('username', username)
-        .eq('password', password)
-        .single();
-
-    if (data) {
-        localStorage.setItem("aeroUser", username);
-        console.log("Login successful!");
-        window.location.href = "index.html"; // Send straight to My AeroBLOX dashboard
-    } else {
-        if (statusMsg) {
-            statusMsg.style.color = "red";
-            statusMsg.innerText = "Invalid username or password!";
-        }
-        console.error("Login failed:", error);
-    }
+function getLoggedInUser() {
+    return localStorage.getItem("aeroUser");
 }
 
-// --- 3. REGISTER FUNCTION ---
-async function registerUser() {
-    const usernameInput = document.getElementById('username-input');
-    const passwordInput = document.getElementById('password-input');
-    const statusMsg = document.getElementById('status-message');
-
-    if (!usernameInput || !passwordInput) return;
-
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!username || !password) {
-        if (statusMsg) {
-            statusMsg.style.color = "red";
-            statusMsg.innerText = "Please enter both username and password.";
-        }
-        return;
-    }
-
-    const { data, error } = await _supabase
-        .from('users')
-        .insert([{ username: username, password: password, robux: 10, tickets: 100 }]);
-
-    if (error) {
-        if (statusMsg) {
-            statusMsg.style.color = "red";
-            statusMsg.innerText = "Error creating account!";
-        }
-        console.error("Registration error:", error);
-    } else {
-        localStorage.setItem("aeroUser", username);
-        window.location.href = "index.html"; // Send straight to My AeroBLOX dashboard
-    }
-}
-
-// --- 4. LOGOUT FUNCTION ---
 function logoutUser() {
     localStorage.removeItem("aeroUser");
-    console.log("Logged out successfully.");
-    window.location.href = "login.html"; // Redirect to login page on logout
+    window.location.href = "login.html";
 }
+
+// Global initialization helper
+document.addEventListener("DOMContentLoaded", async () => {
+    const currentUser = getLoggedInUser();
+    const topGreeting = document.getElementById("top-username-display");
+    const logoutBtn = document.getElementById("logout-btn");
+    const myProfileSubnav = document.getElementById("subnav-my-profile");
+
+    if (currentUser) {
+        if (topGreeting) topGreeting.innerText = `Hi, ${currentUser}`;
+        if (logoutBtn) logoutBtn.style.display = "inline-block";
+        if (myProfileSubnav) myProfileSubnav.href = `profile.html?user=${encodeURIComponent(currentUser)}`;
+
+        // Update 'last_online' timestamp in Supabase
+        await _supabase
+            .from('users')
+            .update({ last_online: new Date().toISOString() })
+            .eq('username', currentUser);
+    } else {
+        if (topGreeting) topGreeting.innerText = "Guest";
+        if (logoutBtn) logoutBtn.style.display = "none";
+    }
+});
