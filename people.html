@@ -5,58 +5,160 @@
     <title>AeroBLOX - People</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="css/style.css">
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .user-search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        .user-card {
+            border: 1px solid #ccc;
+            background: #fafafa;
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: #fff;
+        }
+
+        .user-card-avatar {
+            width: 60px;
+            height: 75px;
+            background: #e0e0e0;
+            border: 1px solid #bbb;
+            margin: 0 auto 8px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .user-card-name {
+            font-weight: bold;
+            color: #003366;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-card-status {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+        }
+    </style>
 </head>
 <body>
 
     <div class="main-container">
         
-        <!-- Top Header Bar with User Info & Currency -->
+        <!-- Top Header Bar -->
         <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
             <div id="user-greeting">
-                <span id="top-username-display" style="font-weight: bold;">Guest</span>
-                <button id="logout-btn" class="btn-classic" style="margin-left: 10px; display: none;" onclick="logoutUser()">Logout</button>
+                <span id="top-username-display" style="font-weight: bold;">Hi, User</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
             </div>
-            
-            <div id="currency-widget" style="display: flex; gap: 15px; align-items: center; font-weight: bold;">
-                <span style="color: #008000; display: flex; align-items: center; gap: 4px;">
-                    <span style="background: #008000; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">R$</span> 
-                    <span id="top-robux-count">0</span>
-                </span>
-                <span style="color: #c68a00; display: flex; align-items: center; gap: 4px;">
-                    <span style="background: #c68a00; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">T$</span> 
-                    <span id="top-tickets-count">0</span>
-                </span>
+            <div class="currency-display" style="display: flex; gap: 8px; font-weight: bold; font-size: 11px;">
+                <span style="background: #008000; color: #fff; padding: 2px 6px; border-radius: 2px;">R$ 1000</span>
+                <span style="background: #d68910; color: #fff; padding: 2px 6px; border-radius: 2px;">T$ 1000</span>
             </div>
         </div>
 
-        <!-- Primary Main Navigation Bar -->
-        <div class="top-nav">
-            <h1>AeroBLOX</h1>
-            <div class="nav-links">
-                <a href="index.html">My AeroBLOX</a> | 
-                <a href="#">Games</a> | 
-                <a href="#">Catalog</a> | 
-                <a href="people.html" class="active">People</a> | 
-                <a href="#">Forum</a>
+        <!-- Centered Primary Navigation -->
+        <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
+            <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
+            <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
+                <a href="index.html" style="color: #fff; text-decoration: none;">My AeroBLOX</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Games</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Catalog</a> | 
+                <a href="people.html" style="color: #fff; text-decoration: none; font-weight: bold;">People</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Forum</a>
             </div>
         </div>
-        
-        <!-- People List Module -->
-        <div class="module-box" style="margin: 15px;">
-            <div class="module-header">People on AeroBLOX</div>
-            <div class="module-content" style="background: #fff; padding: 15px;">
-                <div id="people-list">
-                    <p style="text-align: center; font-weight: bold; padding: 20px; color: #555;">Loading users from database...</p>
+
+        <!-- People Directory Content -->
+        <div style="padding: 15px;">
+            <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">
+                    Search AeroBLOX Users
+                </div>
+                <div class="module-content" style="padding: 15px;">
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                        <input type="text" id="people-search-input" placeholder="Search by username..." style="flex-grow: 1; padding: 6px; border: 1px solid #aaa; border-radius: 3px; font-size: 12px;">
+                        <button class="btn-classic" style="padding: 6px 16px; font-weight: bold;" onclick="searchUsers()">Search</button>
+                    </div>
+
+                    <h3 style="margin: 10px 0 5px 0; color: #003366; font-size: 13px;">Community Members</h3>
+                    <div id="users-directory-container" class="user-search-grid">
+                        <p style="font-size: 11px; color: #666;">Loading users...</p>
+                    </div>
+
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
-    <script src="js/people.js"></script>
     <script src="js/music.js"></script>
+    <script>
+        async function loadPeopleDirectory() {
+            const container = document.getElementById("users-directory-container");
+            const { data: users, error } = await _supabase.from('users').select('username, status, created_at');
+
+            if (error || !users || users.length === 0) {
+                container.innerHTML = `<p style="font-size: 11px; color: #666;">No users found.</p>`;
+                return;
+            }
+
+            container.innerHTML = users.map(u => `
+                <a href="profile.html?user=${encodeURIComponent(u.username)}" class="user-card">
+                    <div class="user-card-avatar">👤</div>
+                    <div class="user-card-name" title="${u.username}">${u.username}</div>
+                    <div class="user-card-status">${u.status ? `"${u.status}"` : 'Member'}</div>
+                </a>
+            `).join('');
+        }
+
+        async function searchUsers() {
+            const query = document.getElementById("people-search-input").value.trim().toLowerCase();
+            const container = document.getElementById("users-directory-container");
+
+            if (!query) {
+                loadPeopleDirectory();
+                return;
+            }
+
+            const { data: users } = await _supabase.from('users').select('username, status').ilike('username', `%${query}%`);
+            
+            if (!users || users.length === 0) {
+                container.innerHTML = `<p style="font-size: 11px; color: #666;">No user matching "${query}"</p>`;
+                return;
+            }
+
+            container.innerHTML = users.map(u => `
+                <a href="profile.html?user=${encodeURIComponent(u.username)}" class="user-card">
+                    <div class="user-card-avatar">👤</div>
+                    <div class="user-card-name">${u.username}</div>
+                    <div class="user-card-status">${u.status ? `"${u.status}"` : 'Member'}</div>
+                </a>
+            `).join('');
+        }
+
+        document.addEventListener("DOMContentLoaded", loadPeopleDirectory);
+    </script>
 </body>
 </html>
