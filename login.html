@@ -2,65 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AeroBLOX - Login</title>
+    <title>AeroBLOX - Login / Register</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="css/style.css">
-
-    <!-- Guard: Redirect to dashboard if already logged in -->
-    <script>
-        if (localStorage.getItem("aeroUser")) {
-            window.location.href = "index.html";
-        }
-    </script>
-
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <div class="main-container">
+    <div class="main-container" style="max-width: 500px; margin-top: 40px;">
         
-        <!-- Primary Main Navigation Bar -->
-        <div class="top-nav">
-            <h1>AeroBLOX</h1>
-            <div class="nav-links">
-                <a href="login.html">My AeroBLOX</a> | 
-                <a href="#">Games</a> | 
-                <a href="#">Catalog</a> | 
-                <a href="people.html">People</a> | 
-                <a href="#">Forum</a>
-            </div>
+        <!-- Header Bar -->
+        <div class="top-header-bar" style="text-align: center; padding: 6px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px; font-weight: bold; color: #003366;">
+            Welcome to AeroBLOX
         </div>
-        
-        <!-- Login Module -->
-        <div class="module-box" style="width: 400px; margin: 40px auto;">
-            <div class="module-header">Member Login</div>
-            <div class="module-content" style="background: #fff; padding: 20px;">
-                
-                <div id="auth-forms">
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">Username:</label>
-                        <input type="text" id="username-input" style="width: 95%; padding: 6px; border: 1px solid #7f9db9;">
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">Password:</label>
-                        <input type="password" id="password-input" style="width: 95%; padding: 6px; border: 1px solid #7f9db9;">
-                    </div>
-                    
-                    <button id="login-btn" class="btn-classic" onclick="loginUser()">Login</button>
-                    <button id="register-btn" class="btn-classic" onclick="registerUser()">Register</button>
-                </div>
 
-                <!-- Status Message -->
-                <p id="status-message" style="font-size: 12px; font-weight: bold; margin-top: 15px; text-align: center; color: red;"></p>
-                
+        <!-- Centered Header -->
+        <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 12px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
+            <h1 style="margin: 0; font-size: 28px;">AeroBLOX</h1>
+            <span style="font-size: 11px; color: #b3d1ff;">2012 Retro Revival Sandbox</span>
+        </div>
+
+        <!-- Main Form Container -->
+        <div style="padding: 20px;">
+            <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 6px 10px; font-weight: bold;">
+                    Account Authentication
+                </div>
+                <div class="module-content" style="padding: 20px;">
+                    
+                    <form id="auth-form" onsubmit="handleAuth(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div>
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 11px;">Username:</label>
+                            <input type="text" id="auth-username" required style="width: 100%; padding: 6px; border: 1px solid #888; border-radius: 3px;">
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 11px;">Password:</label>
+                            <input type="password" id="auth-password" required style="width: 100%; padding: 6px; border: 1px solid #888; border-radius: 3px;">
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="submit" class="btn-classic" style="flex: 1; padding: 6px; font-weight: bold; background: linear-gradient(to bottom, #ffffff, #e6e6e6);">Login</button>
+                            <button type="button" class="btn-classic" style="flex: 1; padding: 6px; font-weight: bold; background: linear-gradient(to bottom, #e8f4f8, #cce5ff);" onclick="handleRegister()">Register</button>
+                        </div>
+                    </form>
+
+                    <p id="auth-error-msg" style="color: #d9534f; font-size: 11px; text-align: center; margin: 12px 0 0 0; display: none;"></p>
+
+                </div>
             </div>
         </div>
+
     </div>
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
-    <script src="js/music.js"></script>
 </body>
 </html>
