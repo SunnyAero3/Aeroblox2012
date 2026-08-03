@@ -3,48 +3,25 @@ const supabaseUrl = 'https://hvxezfwdgskwldcfvtpm.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2eGV6ZndkZ3Nrd2xkY2Z2dHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjgzOTMsImV4cCI6MjEwMTI0NDM5M30.YOq9nvgmEszFvfVfYUetSdfcrJGofFuozHSmH57rmXY';
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// --- 2. DYNAMIC UI & CONSOLE LOGGING (RUNS ON EVERY PAGE LOAD) ---
-document.addEventListener("DOMContentLoaded", () => {
-    const loggedInUser = localStorage.getItem("aeroUser");
-
-    const authForms = document.getElementById("auth-forms");
-    const logoutBtn = document.getElementById("logout-btn");
-    const statusMessage = document.getElementById("status-message");
-
-    if (loggedInUser) {
-        // Print active login to console in bright green
-        console.log(`%c[AeroBLOX Auth] Logged in as: ${loggedInUser}`, "color: #7ccf3b; font-weight: bold;");
-        
-        // Hide inputs, show logout button
-        if (authForms) authForms.style.display = "none";
-        if (logoutBtn) logoutBtn.style.display = "inline-block";
-        if (statusMessage) {
-            statusMessage.style.color = "green";
-            statusMessage.innerText = `Welcome back, ${loggedInUser}!`;
-        }
-    } else {
-        // Print offline status to console in red
-        console.log("%c[AeroBLOX Auth] Currently not logged in.", "color: #ff4444; font-weight: bold;");
-        
-        // Show inputs, hide logout button
-        if (authForms) authForms.style.display = "block";
-        if (logoutBtn) logoutBtn.style.display = "none";
-    }
-});
-
-// --- 3. LOGIN FUNCTION ---
+// --- 2. LOGIN FUNCTION ---
 async function loginUser() {
-    const username = document.getElementById('username-input').value;
-    const password = document.getElementById('password-input').value;
+    const usernameInput = document.getElementById('username-input');
+    const passwordInput = document.getElementById('password-input');
     const statusMsg = document.getElementById('status-message');
 
+    if (!usernameInput || !passwordInput) return;
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
     if (!username || !password) {
-        statusMsg.style.color = "red";
-        statusMsg.innerText = "Please enter both username and password.";
+        if (statusMsg) {
+            statusMsg.style.color = "red";
+            statusMsg.innerText = "Please enter both username and password.";
+        }
         return;
     }
 
-    // Query Supabase for the user
     const { data, error } = await _supabase
         .from('users')
         .select('*')
@@ -53,48 +30,56 @@ async function loginUser() {
         .single();
 
     if (data) {
-        // Save session locally
         localStorage.setItem("aeroUser", username);
         console.log("Login successful!");
-        window.location.reload(); // Refresh to update UI & buttons
+        window.location.href = "index.html"; // Send straight to My AeroBLOX dashboard
     } else {
-        statusMsg.style.color = "red";
-        statusMsg.innerText = "Invalid username or password!";
+        if (statusMsg) {
+            statusMsg.style.color = "red";
+            statusMsg.innerText = "Invalid username or password!";
+        }
         console.error("Login failed:", error);
     }
 }
 
-// --- 4. REGISTER FUNCTION ---
+// --- 3. REGISTER FUNCTION ---
 async function registerUser() {
-    const username = document.getElementById('username-input').value;
-    const password = document.getElementById('password-input').value;
+    const usernameInput = document.getElementById('username-input');
+    const passwordInput = document.getElementById('password-input');
     const statusMsg = document.getElementById('status-message');
 
+    if (!usernameInput || !passwordInput) return;
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
     if (!username || !password) {
-        statusMsg.style.color = "red";
-        statusMsg.innerText = "Please enter both username and password.";
+        if (statusMsg) {
+            statusMsg.style.color = "red";
+            statusMsg.innerText = "Please enter both username and password.";
+        }
         return;
     }
 
-    // Insert new user into database with starting currency (10 Robux, 100 Tickets)
     const { data, error } = await _supabase
         .from('users')
         .insert([{ username: username, password: password, robux: 10, tickets: 100 }]);
 
     if (error) {
-        statusMsg.style.color = "red";
-        statusMsg.innerText = "Error creating account!";
+        if (statusMsg) {
+            statusMsg.style.color = "red";
+            statusMsg.innerText = "Error creating account!";
+        }
         console.error("Registration error:", error);
     } else {
-        // Log them in immediately after registering
         localStorage.setItem("aeroUser", username);
-        window.location.reload();
+        window.location.href = "index.html"; // Send straight to My AeroBLOX dashboard
     }
 }
 
-// --- 5. LOGOUT FUNCTION ---
+// --- 4. LOGOUT FUNCTION ---
 function logoutUser() {
     localStorage.removeItem("aeroUser");
     console.log("Logged out successfully.");
-    window.location.reload(); // Refresh page to return to login state
+    window.location.href = "login.html"; // Redirect to login page on logout
 }
