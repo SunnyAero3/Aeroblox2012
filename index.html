@@ -2,42 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AeroBLOX - Home</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="top-nav">
-        <h1>AeroBLOX</h1>
-        <div class="nav-links">
-            <a href="index.html">Home</a> | 
-            <a href="games.html">Games</a> | 
-            <a href="my-roblox.html">My Character</a> | 
-            <a href="people.html">People</a> | 
-            <a href="login.html">Login</a>
-        </div>
-    </div>
 
     <div class="main-container">
-        <h2>Welcome to AeroBLOX!</h2>
-        <p>A classic 2012 revival featuring Frutiger Aero design.</p>
+        <!-- Navigation Bar -->
+        <div class="top-nav">
+            <h1>AeroBLOX</h1>
+            <div class="nav-links">
+                <a href="index.html">My AeroBLOX</a> | 
+                <a href="people.html">People</a>
+            </div>
+        </div>
         
-        <div class="feed-section">
-            <h3>Recent Activity</h3>
-            <p>Loading activity feed...</p>
+        <!-- Login Module -->
+        <div class="module-box">
+            <div class="module-header">Member Login</div>
+            <div class="module-content">
+                
+                <!-- Auth Forms (Hidden when logged in) -->
+                <div id="auth-forms">
+                    <label>Username:</label>
+                    <input type="text" id="username-input">
+                    
+                    <label>Password:</label>
+                    <input type="password" id="password-input">
+                    
+                    <button id="login-btn" class="btn-classic" onclick="loginUser()">Login</button>
+                    <button id="register-btn" class="btn-classic" onclick="registerUser()">Register</button>
+                </div>
+
+                <!-- Logout Button (Hidden by default) -->
+                <button id="logout-btn" class="btn-classic" style="display: none;" onclick="logoutUser()">Logout</button>
+                
+                <!-- Status Message -->
+                <p id="status-message" style="color: red; font-weight: bold; margin-top: 10px;"></p>
+                
+            </div>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 AeroBLOX. All rights reserved.</p>
-    </footer>
-
-    <!-- Supabase Core Library & Config -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/config.js"></script>
-    <!-- Page Specific Script (Coming Soon) -->
-    <!-- <script src="js/home.js"></script> -->
-    <script src="js/music.js"></script>
+    <!-- Auth Script -->
+    <script src="js/auth.js"></script>
 </body>
 </html>
