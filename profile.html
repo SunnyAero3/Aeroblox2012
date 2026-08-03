@@ -14,10 +14,25 @@
         .item-thumb { width: 100%; height: 45px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd; }
         .gamepass-card { width: 170px; border: 1px solid #ccc; padding: 8px; background: #fdfdfd; font-size: 11px; line-height: 1.4; }
 
-        /* Online / Offline Status Dot */
+        /* Centered Primary Top Nav Alignment */
+        .top-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .top-nav .nav-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Online / Offline Status Dot (UPDATED: Bright Red Offline Dot) */
         .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
         .dot-online { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
-        .dot-offline { background-color: #95a5a6; }
+        .dot-offline { background-color: #ff3b30; box-shadow: 0 0 5px rgba(255, 59, 48, 0.6); }
 
         /* Avatar Visual Box & Clickable Scale */
         .avatar-render-box { width: 110px; height: 140px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; border: 1px solid #ccc; padding: 5px; cursor: pointer; transition: transform 0.15s ease; }
@@ -71,7 +86,7 @@
             </div>
         </div>
 
-        <!-- Primary Navigation Bar -->
+        <!-- Primary Navigation Bar (Centered) -->
         <div class="top-nav">
             <h1>AeroBLOX</h1>
             <div class="nav-links">
@@ -90,7 +105,7 @@
                     <!-- Online / Offline Pill -->
                     <span id="online-status-pill" style="font-size: 11px; font-weight: bold; display: flex; align-items: center;">
                         <span id="status-dot" class="status-dot dot-offline"></span>
-                        <span id="status-text" style="color: #777;">Offline</span>
+                        <span id="status-text" style="color: #ff3b30;">Offline</span>
                     </span>
                 </div>
                 
@@ -113,10 +128,10 @@
                     </div>
                 </div>
 
-                <!-- Add Friend / Send Message Buttons (Hidden on own profile) -->
+                <!-- Add Friend / Send Message Buttons -->
                 <div id="profile-actions-box" class="module-box" style="margin-bottom: 15px; display: none;">
                     <div class="module-content" style="background: #fff; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
-                        <button class="btn-classic" style="width: 100%; font-weight: bold;" onclick="sendFriendRequest()">➕ Add Friend</button>
+                        <button id="btn-send-friend" class="btn-classic" style="width: 100%; font-weight: bold;" onclick="sendFriendRequest()">➕ Add Friend</button>
                         <button class="btn-classic" style="width: 100%;" onclick="sendMessage()">✉️ Send Message</button>
                     </div>
                 </div>
@@ -202,6 +217,7 @@
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
+    <script src="js/friends.js"></script>
     <script src="js/profile.js"></script>
     <script src="js/music.js"></script>
 </body>
