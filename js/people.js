@@ -1,7 +1,6 @@
 async function loadPeople() {
     const peopleList = document.getElementById('people-list');
 
-    // Fetch all users from your Supabase 'users' table, newest accounts first
     const { data, error } = await _supabase
         .from('users')
         .select('username, created_at')
@@ -16,9 +15,8 @@ async function loadPeople() {
     }
 
     if (peopleList) {
-        peopleList.innerHTML = ''; // Clear loading text
+        peopleList.innerHTML = '';
 
-        // Loop through every user and generate their retro card
         data.forEach(user => {
             const joinDate = user.created_at ? new Date(user.created_at).toLocaleDateString() : "Classic";
 
@@ -39,5 +37,4 @@ async function loadPeople() {
     }
 }
 
-// Run as soon as the page loads
 document.addEventListener("DOMContentLoaded", loadPeople);
