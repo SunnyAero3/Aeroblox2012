@@ -10,6 +10,8 @@
         .badge-grid, .inventory-grid { display: flex; gap: 8px; flex-wrap: wrap; }
         .item-card { width: 75px; border: 1px solid #ccc; padding: 4px; background: #fafafa; text-align: center; font-size: 10px; }
         .item-thumb { width: 100%; height: 50px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd; }
+        
+        /* Avatar Box */
         .avatar-render-box { width: 110px; height: 140px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; border: 1px solid #ccc; padding: 5px; }
         .av-head { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #333; margin-bottom: 2px; }
         .av-torso-row { display: flex; gap: 2px; }
@@ -17,6 +19,34 @@
         .av-torso { width: 28px; height: 40px; border: 1px solid #333; }
         .av-legs-row { display: flex; gap: 2px; margin-top: 2px; }
         .av-leg { width: 13px; height: 40px; border: 1px solid #333; }
+
+        /* Sub Navigation Link Styling */
+        .sub-nav-bar {
+            background: #e9a838;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #c88820;
+        }
+        .sub-nav-bar a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 2px 4px;
+        }
+        .sub-nav-bar a:hover {
+            text-decoration: underline;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        .sub-nav-bar .divider {
+            color: #f7d28d;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -36,7 +66,7 @@
             </div>
         </div>
 
-        <!-- Navigation Bar -->
+        <!-- Primary Main Navigation Bar -->
         <div class="top-nav">
             <h1>AeroBLOX</h1>
             <div class="nav-links">
@@ -44,8 +74,17 @@
             </div>
         </div>
 
-        <div style="background: #e9a838; padding: 3px 8px; font-size: 11px; font-weight: bold; color: #fff;">
-            Home | Places | Inbox | Account | Profile | Friends | Character | Stuff | Money
+        <!-- Clickable Sub-Navigation Bar -->
+        <div class="sub-nav-bar">
+            <a href="index.html">Home</a> <span class="divider">|</span>
+            <a href="#">Places</a> <span class="divider">|</span>
+            <a href="#">Inbox</a> <span class="divider">|</span>
+            <a href="#">Account</a> <span class="divider">|</span>
+            <a href="profile.html">Profile</a> <span class="divider">|</span>
+            <a href="people.html">Friends</a> <span class="divider">|</span>
+            <a href="#">Character</a> <span class="divider">|</span>
+            <a href="#">Stuff</a> <span class="divider">|</span>
+            <a href="#">Money</a>
         </div>
 
         <!-- Main Body -->
