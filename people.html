@@ -11,24 +11,42 @@
 <body>
 
     <div class="main-container">
-        <!-- Navigation Bar -->
+        
+        <!-- Top Header Bar with User Info & Currency -->
+        <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
+            <div id="user-greeting">
+                <span id="top-username-display" style="font-weight: bold;">Guest</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px; display: none;" onclick="logoutUser()">Logout</button>
+            </div>
+            
+            <div id="currency-widget" style="display: flex; gap: 15px; align-items: center; font-weight: bold;">
+                <span style="color: #008000; display: flex; align-items: center; gap: 4px;">
+                    <span style="background: #008000; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">R$</span> 
+                    <span id="top-robux-count">0</span>
+                </span>
+                <span style="color: #c68a00; display: flex; align-items: center; gap: 4px;">
+                    <span style="background: #c68a00; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">T$</span> 
+                    <span id="top-tickets-count">0</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Primary Main Navigation Bar -->
         <div class="top-nav">
             <h1>AeroBLOX</h1>
-<div class="nav-links">
-    <a href="index.html">My AeroBLOX</a> | 
-    <a href="#">Games</a> | 
-    <a href="#">Catalog</a> | 
-    <a href="people.html" class="active">People</a> | 
-    <a href="#">Forum</a>
-</div>
-            <!-- Header Logout Button -->
-            <button id="logout-btn" class="btn-classic" style="display: none; float: right; margin-top: -5px;" onclick="logoutUser()">Logout</button>
+            <div class="nav-links">
+                <a href="index.html">My AeroBLOX</a> | 
+                <a href="#">Games</a> | 
+                <a href="#">Catalog</a> | 
+                <a href="people.html" class="active">People</a> | 
+                <a href="#">Forum</a>
+            </div>
         </div>
         
         <!-- People List Module -->
-        <div class="module-box">
+        <div class="module-box" style="margin: 15px;">
             <div class="module-header">People on AeroBLOX</div>
-            <div class="module-content">
+            <div class="module-content" style="background: #fff; padding: 15px;">
                 <div id="people-list">
                     <p style="text-align: center; font-weight: bold; padding: 20px; color: #555;">Loading users from database...</p>
                 </div>
