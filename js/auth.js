@@ -2,9 +2,9 @@
  * js/auth.js - Authentication & Session Handling for AeroBLOX
  */
 
-// Initialize Supabase Client
-const SUPABASE_URL = "YOUR_SUPABASE_URL"; // Replace with your actual Supabase URL
-const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY"; // Replace with your actual Anon Key
+// Supabase Configuration & Initialization
+const SUPABASE_URL = "https://hvxezfwdgskwldcfvtpm.supabase.co"; 
+const SUPABASE_KEY = "sb_publishable_bVf9JahB15fNjLlIGIlzeA_FGsRJ6jT"; 
 
 if (typeof _supabase === 'undefined' && typeof supabase !== 'undefined') {
     window._supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
