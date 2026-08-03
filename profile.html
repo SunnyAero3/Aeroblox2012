@@ -2,56 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AeroBLOX - View Profile</title>
+    <title>AeroBLOX - Profile</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .badge-grid, .inventory-grid, .friends-grid, .gamepass-grid {
-            display: flex; gap: 10px; flex-wrap: wrap;
+        .badge-grid, .inventory-grid, .friends-grid, .gamepass-grid { 
+            display: flex; gap: 8px; flex-wrap: wrap; 
         }
-        .item-card {
-            width: 90px; border: 1px solid #ccc; padding: 6px; background: #fafafa; text-align: center; font-size: 10px;
-        }
-        .item-thumb {
-            width: 100%; height: 60px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd;
-        }
-        .gamepass-card {
-            width: 185px; border: 1px solid #ccc; padding: 8px; background: #fdfdfd; font-size: 11px; line-height: 1.4; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        /* Avatar Box & Interactive Scaling */
-        .avatar-render-box {
-            width: 120px; height: 150px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; border: 1px solid #ccc; padding: 5px; cursor: pointer; transition: transform 0.15s ease;
-        }
-        .avatar-render-box:hover {
-            transform: scale(1.04);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-        .av-head { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #333; margin-bottom: 2px; }
-        .av-torso-row { display: flex; gap: 2px; }
-        .av-arm { width: 14px; height: 45px; border: 1px solid #333; }
-        .av-torso { width: 32px; height: 45px; border: 1px solid #333; }
-        .av-legs-row { display: flex; gap: 2px; margin-top: 2px; }
-        .av-leg { width: 15px; height: 45px; border: 1px solid #333; }
+        .item-card { width: 95px; border: 1px solid #ccc; padding: 6px; background: #fafafa; text-align: center; font-size: 10px; }
+        .item-thumb { width: 100%; height: 45px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd; }
+        .gamepass-card { width: 170px; border: 1px solid #ccc; padding: 8px; background: #fdfdfd; font-size: 11px; line-height: 1.4; }
 
         /* Online / Offline Status Dot */
-        .status-dot {
-            display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px;
-        }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
         .dot-online { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
         .dot-offline { background-color: #95a5a6; }
 
-        /* Modal Lightbox for Enlarged Avatar */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: #fff; padding: 20px; border-radius: 6px; border: 2px solid #003366; text-align: center; position: relative; width: 260px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-        .avatar-render-box-large {
-            width: 180px; height: 230px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f0f0f0; border: 1px solid #aaa; padding: 10px;
-        }
+        /* Avatar Visual Box & Clickable Scale */
+        .avatar-render-box { width: 110px; height: 140px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; border: 1px solid #ccc; padding: 5px; cursor: pointer; transition: transform 0.15s ease; }
+        .avatar-render-box:hover { transform: scale(1.04); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        .av-head { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #333; margin-bottom: 2px; }
+        .av-torso-row { display: flex; gap: 2px; }
+        .av-arm { width: 12px; height: 40px; border: 1px solid #333; }
+        .av-torso { width: 28px; height: 40px; border: 1px solid #333; }
+        .av-legs-row { display: flex; gap: 2px; margin-top: 2px; }
+        .av-leg { width: 13px; height: 40px; border: 1px solid #333; }
+
+        /* Modal Lightbox Overlay */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 6px; border: 2px solid #003366; text-align: center; position: relative; width: 260px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .avatar-render-box-large { width: 180px; height: 230px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f0f0f0; border: 1px solid #aaa; padding: 10px; }
         .avatar-render-box-large .av-head { width: 45px; height: 45px; }
         .avatar-render-box-large .av-arm { width: 20px; height: 70px; }
         .avatar-render-box-large .av-torso { width: 48px; height: 70px; }
@@ -60,10 +41,10 @@
 </head>
 <body>
 
-    <!-- Avatar Enlarge Lightbox Modal -->
+    <!-- Avatar Lightbox Modal -->
     <div id="avatar-modal" class="modal-overlay" onclick="closeAvatarModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modal-avatar-title" style="margin-top: 0; color: #003366; font-size: 16px;">Avatar View</h3>
+            <h3 style="margin-top: 0; color: #003366; font-size: 16px;">Avatar View</h3>
             <div class="avatar-render-box-large">
                 <div class="av-head" id="modal-av-head"></div>
                 <div class="av-torso-row">
@@ -85,17 +66,12 @@
         <!-- Header Bar -->
         <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
             <div id="user-greeting">
-                <span id="top-username-display" style="font-weight: bold;">Guest</span>
-                <button id="logout-btn" class="btn-classic" style="margin-left: 10px; display: none;" onclick="logoutUser()">Logout</button>
-            </div>
-            
-            <div id="currency-widget" style="display: flex; gap: 15px; align-items: center; font-weight: bold;">
-                <span style="color: #008000; display: flex; align-items: center; gap: 4px;"><span style="background: #008000; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">R$</span> <span id="top-robux-count">0</span></span>
-                <span style="color: #c68a00; display: flex; align-items: center; gap: 4px;"><span style="background: #c68a00; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">T$</span> <span id="top-tickets-count">0</span></span>
+                <span id="top-username-display" style="font-weight: bold;">Hi, User</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
             </div>
         </div>
 
-        <!-- Navigation Bar -->
+        <!-- Primary Navigation Bar -->
         <div class="top-nav">
             <h1>AeroBLOX</h1>
             <div class="nav-links">
@@ -103,41 +79,41 @@
             </div>
         </div>
 
-        <!-- Profile Body -->
-        <div class="dashboard-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
+        <!-- Main Body Content -->
+        <div class="profile-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
             
             <!-- Left Column -->
-            <div class="left-col" style="width: 230px; flex-shrink: 0;">
+            <div class="left-col" style="width: 220px; flex-shrink: 0;">
                 
-                <!-- Username Header & Online Indicator -->
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                    <h2 id="profile-username-header" style="font-size: 18px; color: #003366; margin: 0; word-break: break-all;">Loading...</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 id="profile-username" style="font-size: 18px; color: #003366; margin: 0;">User Profile</h2>
+                    <!-- Online / Offline Pill -->
                     <span id="online-status-pill" style="font-size: 11px; font-weight: bold; display: flex; align-items: center;">
                         <span id="status-dot" class="status-dot dot-offline"></span>
                         <span id="status-text" style="color: #777;">Offline</span>
                     </span>
                 </div>
                 
-                <!-- Avatar Box (Clickable) -->
+                <!-- Avatar Rendering Box -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-content" style="text-align: center; background: #fff; padding: 10px;">
                         <div class="avatar-render-box" id="avatar-container" onclick="openAvatarModal()" title="Click to enlarge avatar">
-                            <div class="av-head" id="av-head"></div>
+                            <div class="av-head" id="profile-av-head"></div>
                             <div class="av-torso-row">
-                                <div class="av-arm" id="av-l-arm"></div>
-                                <div class="av-torso" id="av-torso"></div>
-                                <div class="av-arm" id="av-r-arm"></div>
+                                <div class="av-arm" id="profile-av-l-arm"></div>
+                                <div class="av-torso" id="profile-av-torso"></div>
+                                <div class="av-arm" id="profile-av-r-arm"></div>
                             </div>
                             <div class="av-legs-row">
-                                <div class="av-leg" id="av-l-leg"></div>
-                                <div class="av-leg" id="av-r-leg"></div>
+                                <div class="av-leg" id="profile-av-l-leg"></div>
+                                <div class="av-leg" id="profile-av-r-leg"></div>
                             </div>
                         </div>
-                        <p style="font-size: 9px; color: #888; margin: 5px 0 0 0;">🔍 Click avatar to enlarge</p>
+                        <p style="font-size: 9px; color: #888; margin: 5px 0 0 0;">🔍 Click to enlarge</p>
                     </div>
                 </div>
 
-                <!-- Action Buttons (Add Friend / Send Message) -->
+                <!-- Add Friend / Send Message Buttons (Hidden on own profile) -->
                 <div id="profile-actions-box" class="module-box" style="margin-bottom: 15px; display: none;">
                     <div class="module-content" style="background: #fff; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
                         <button class="btn-classic" style="width: 100%; font-weight: bold;" onclick="sendFriendRequest()">➕ Add Friend</button>
@@ -145,11 +121,11 @@
                     </div>
                 </div>
 
-                <!-- User Details -->
+                <!-- Account Info -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">User Information</div>
-                    <div class="module-content" style="background: #fff; padding: 10px; font-size: 11px; line-height: 1.6;">
-                        <p style="margin: 0;"><strong>Joined:</strong> <span id="profile-join-date">Loading...</span></p>
+                    <div class="module-content" style="background: #fff; padding: 10px; font-size: 11px;">
+                        <p style="margin: 0 0 4px 0;"><strong>Joined:</strong> <span id="profile-join-date">Loading...</span></p>
                         <p style="margin: 0;"><strong>Last Active:</strong> <span id="profile-last-online">Loading...</span></p>
                     </div>
                 </div>
@@ -166,7 +142,7 @@
 
                 <!-- Friends Box -->
                 <div class="module-box">
-                    <div class="module-header" id="friends-title">Friends</div>
+                    <div class="module-header" id="friends-title">Friends (0)</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
                         <div id="friends-container" class="friends-grid">
                             <p style="font-size: 11px; color: #666; margin: 0;">No friends added yet.</p>
@@ -178,18 +154,10 @@
             <!-- Right Column -->
             <div class="right-col" style="flex-grow: 1;">
                 
-                <!-- User Status Box -->
+                <!-- User Places -->
                 <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header" id="profile-blurb-title">User Status</div>
-                    <div class="module-content" style="background: #fff; padding: 12px;">
-                        <p id="profile-status-text" style="font-size: 13px; font-style: italic; color: #333; margin: 0;">No status provided yet.</p>
-                    </div>
-                </div>
-
-                <!-- Showcase Places Box -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header" id="profile-places-title">Showcase Places</div>
-                    <div class="module-content" style="background: #fff; padding: 12px;">
+                    <div class="module-header" id="places-title">Places</div>
+                    <div class="module-content" style="background: #fff; padding: 10px;">
                         <div class="item-card" style="width: 120px;">
                             <div class="item-thumb" style="height: 70px;">Place</div>
                             <span id="profile-place-name" style="font-weight: bold; color: #003366; display: block;">Starter Place</span>
@@ -198,28 +166,28 @@
                     </div>
                 </div>
 
-                <!-- Badges Box -->
+                <!-- Badges -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">Badges</div>
-                    <div class="module-content" style="background: #fff; padding: 12px;">
+                    <div class="module-content" style="background: #fff; padding: 10px;">
                         <div id="badges-container" class="badge-grid"></div>
                     </div>
                 </div>
 
-                <!-- Game Passes Box -->
+                <!-- Game Passes -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">Game Passes</div>
-                    <div class="module-content" style="background: #fff; padding: 12px;">
+                    <div class="module-content" style="background: #fff; padding: 10px;">
                         <div id="gamepasses-container" class="gamepass-grid">
                             <p style="font-size: 11px; color: #666; margin: 0;">Loading game passes...</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Inventory Box -->
+                <!-- Inventory -->
                 <div class="module-box">
                     <div class="module-header">Inventory</div>
-                    <div class="module-content" style="background: #fff; padding: 12px;">
+                    <div class="module-content" style="background: #fff; padding: 10px;">
                         <div id="inventory-container" class="inventory-grid">
                             <p style="font-size: 11px; color: #666; margin: 0;">Inventory is empty.</p>
                         </div>
