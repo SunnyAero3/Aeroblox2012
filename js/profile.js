@@ -1,4 +1,15 @@
-let currentAvatarColors = { head: "#F5CD2F", torso: "#0D69AC", left_arm: "#F5CD2F", right_arm: "#F5CD2F", left_leg: "#A2A8A8", right_leg: "#A2A8A8" };
+/**
+ * js/profile.js - Profile Page Logic for AeroBLOX
+ */
+
+let currentAvatarColors = { 
+    head: "#F5CD2F", 
+    torso: "#0D69AC", 
+    left_arm: "#F5CD2F", 
+    right_arm: "#F5CD2F", 
+    left_leg: "#A2A8A8", 
+    right_leg: "#A2A8A8" 
+};
 
 async function loadUserProfile() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -21,13 +32,17 @@ async function loadUserProfile() {
         return;
     }
 
-    // Set User Titles
+    // Set Titles
     document.getElementById("profile-username").innerText = user.username;
     document.title = `AeroBLOX - ${user.username}'s Profile`;
-    document.getElementById("places-title").innerText = `${user.username}'s Places`;
-    document.getElementById("profile-place-name").innerText = `${user.username}'s Place`;
+    
+    const placesTitle = document.getElementById("places-title");
+    if (placesTitle) placesTitle.innerText = `${user.username}'s Places`;
 
-    // 🟢/🔴 Online Status Calculation (Within 5 minutes = Online)
+    const profilePlaceName = document.getElementById("profile-place-name");
+    if (profilePlaceName) profilePlaceName.innerText = `${user.username}'s Place`;
+
+    // 🟢/🔴 Online Status Calculation (Within 5 mins)
     const statusDot = document.getElementById("status-dot");
     const statusText = document.getElementById("status-text");
     const lastOnlineTime = user.last_online ? new Date(user.last_online) : null;
@@ -35,31 +50,88 @@ async function loadUserProfile() {
 
     if (lastOnlineTime && lastOnlineTime > fiveMinutesAgo) {
         if (statusDot) statusDot.className = "status-dot dot-online";
-        if (statusText) { statusText.innerText = "Online"; statusText.style.color = "#2ecc71"; }
+        if (statusText) { 
+            statusText.innerText = "Online"; 
+            statusText.style.color = "#2ecc71"; 
+        }
     } else {
         if (statusDot) statusDot.className = "status-dot dot-offline";
-        if (statusText) { statusText.innerText = "Offline"; statusText.style.color = "#777"; }
+        if (statusText) { 
+            statusText.innerText = "Offline"; 
+            statusText.style.color = "#ff3b30"; 
+        }
+    }
+
+    // Populate Status Text Message Box
+    const profileStatusText = document.getElementById("profile-status-text");
+    if (profileStatusText) {
+        profileStatusText.innerText = user.status && user.status.trim() !== "" 
+            ? `"${user.status}"` 
+            : '"No status set"';
     }
 
     // Dates & Place Visits
-    document.getElementById("profile-join-date").innerText = user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026";
-    document.getElementById("profile-last-online").innerText = user.last_online ? new Date(user.last_online).toLocaleString() : "Unknown";
-    document.getElementById("profile-place-visits").innerText = user.place_visits ?? 0;
+    const joinDateEl = document.getElementById("profile-join-date");
+    if (joinDateEl) {
+        joinDateEl.innerText = user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026";
+    }
 
-    // Show or Hide "Add Friend" & "Send Message" Buttons
+    const lastOnlineEl = document.getElementById("profile-last-online");
+    if (lastOnlineEl) {
+        lastOnlineEl.innerText = user.last_online ? new Date(user.last_online).toLocaleString() : "Unknown";
+    }
+
+    const placeVisitsEl = document.getElementById("profile-place-visits");
+    if (placeVisitsEl) {
+        placeVisitsEl.innerText = user.place_visits ?? 0;
+    }
+
+    // Profile Interactive Action Buttons Setup
     const loggedInUser = localStorage.getItem("aeroUser");
     const actionsBox = document.getElementById("profile-actions-box");
+    
     if (loggedInUser && loggedInUser.toLowerCase() !== targetUsername.toLowerCase()) {
         if (actionsBox) actionsBox.style.display = "block";
+        
+        // Check relationships between viewer and profile target
+        const { data: loggedInUserData } = await _supabase
+            .from('users')
+            .select('friends, best_friends')
+            .eq('username', loggedInUser)
+            .single();
+
+        const isFriend = (loggedInUserData?.friends || []).includes(user.username);
+        const isBestFriend = (loggedInUserData?.best_friends || []).includes(user.username);
+        const isPending = (user.friend_requests || []).includes(loggedInUser);
+
+        const actionsContainer = actionsBox?.querySelector(".module-content");
+        if (actionsContainer) {
+            let friendBtnHtml = `<button id="btn-send-friend" class="btn-classic" style="width: 100%; font-weight: bold;" onclick="sendFriendRequest('${user.username}')">➕ Add Friend</button>`;
+            
+            if (isFriend) {
+                const bfStar = isBestFriend ? "★ Remove Best Friend" : "☆ Make Best Friend";
+                friendBtnHtml = `
+                    <button class="btn-classic" style="width: 100%; font-weight: bold;" disabled>✔ Friends</button>
+                    <button class="btn-classic" style="width: 100%; margin-top: 4px; color: #b88600;" onclick="toggleBestFriend('${user.username}')">${bfStar}</button>
+                `;
+            } else if (isPending) {
+                friendBtnHtml = `<button class="btn-classic" style="width: 100%; font-weight: bold;" disabled>⏳ Pending Request</button>`;
+            }
+
+            actionsContainer.innerHTML = `
+                ${friendBtnHtml}
+                <button class="btn-classic" style="width: 100%; margin-top: 4px;" onclick="sendMessage()">✉️ Send Message</button>
+            `;
+        }
     } else {
         if (actionsBox) actionsBox.style.display = "none";
     }
 
-    // Apply Avatar Colors
+    // Avatar Colors
     currentAvatarColors = user.avatar || currentAvatarColors;
     applyAvatarColors("profile-av", currentAvatarColors);
 
-    // Best Friends List
+    // Best Friends List Rendering
     const bestFriendsContainer = document.getElementById("best-friends-container");
     const bestFriends = user.best_friends || [];
     if (bestFriendsContainer) {
@@ -76,10 +148,12 @@ async function loadUserProfile() {
         }
     }
 
-    // Friends List
+    // Friends List Rendering
     const friendsContainer = document.getElementById("friends-container");
     const friends = user.friends || [];
-    document.getElementById("friends-title").innerText = `Friends (${friends.length})`;
+    const friendsTitle = document.getElementById("friends-title");
+    if (friendsTitle) friendsTitle.innerText = `Friends (${friends.length})`;
+
     if (friendsContainer) {
         if (friends.length > 0) {
             friendsContainer.innerHTML = friends.map(f => `
@@ -94,21 +168,16 @@ async function loadUserProfile() {
         }
     }
 
-    // Badges (with Acquired Date)
+    // Badges
     const badgeContainer = document.getElementById("badges-container");
-    const defaultBadge = {
-        name: "Welcome to AeroBLOX",
-        acquired_at: user.created_at || new Date().toISOString()
-    };
+    const defaultBadge = { name: "Welcome to AeroBLOX", acquired_at: user.created_at || new Date().toISOString() };
     const badgeList = (user.badges && user.badges.length > 0) ? user.badges : [defaultBadge];
 
     if (badgeContainer) {
         badgeContainer.innerHTML = badgeList.map(b => {
             const isObj = typeof b === 'object' && b !== null;
             const badgeName = isObj ? (b.name || "Badge") : b;
-            const dateAcquired = isObj && b.acquired_at 
-                ? new Date(b.acquired_at).toLocaleDateString() 
-                : (user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026");
+            const dateAcquired = isObj && b.acquired_at ? new Date(b.acquired_at).toLocaleDateString() : (user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026");
 
             return `
                 <div class="item-card">
@@ -122,14 +191,9 @@ async function loadUserProfile() {
         }).join('');
     }
 
-    // Game Passes with Timestamps
+    // Game Passes
     const gpContainer = document.getElementById("gamepasses-container");
-    const defaultPass = {
-        name: "Welcome to AeroBLOX",
-        created_at: user.created_at || new Date().toISOString(),
-        updated_at: user.created_at || new Date().toISOString(),
-        acquired_at: user.created_at || new Date().toISOString()
-    };
+    const defaultPass = { name: "Welcome to AeroBLOX", created_at: user.created_at || new Date().toISOString(), updated_at: user.created_at || new Date().toISOString(), acquired_at: user.created_at || new Date().toISOString() };
     const passList = (user.gamepasses && user.gamepasses.length > 0) ? user.gamepasses : [defaultPass];
 
     if (gpContainer) {
@@ -166,16 +230,10 @@ async function loadUserProfile() {
     }
 }
 
-// Interactive Button Placeholders
-function sendFriendRequest() {
-    alert("Friend request feature coming soon!");
-}
-
 function sendMessage() {
     alert("Messaging feature coming soon!");
 }
 
-// Avatar Color Helper
 function applyAvatarColors(prefix, colors) {
     const head = document.getElementById(`${prefix}-head`);
     const torso = document.getElementById(`${prefix}-torso`);
@@ -192,7 +250,6 @@ function applyAvatarColors(prefix, colors) {
     if (rLeg) rLeg.style.backgroundColor = colors.right_leg;
 }
 
-// Modal Functions
 function openAvatarModal() {
     const modal = document.getElementById("avatar-modal");
     if (modal) {
