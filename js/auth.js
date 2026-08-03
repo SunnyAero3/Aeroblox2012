@@ -1,89 +1,61 @@
-// js/auth.js
+// --- 1. INITIALIZE SUPABASE ---
+// REPLACE THESE WITH YOUR ACTUAL SUPABASE URL AND ANON KEY
+const supabaseUrl = 'YOUR_SUPABASE_URL_HERE';
+const supabaseKey = 'YOUR_SUPABASE_ANON_KEY_HERE';
+const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // Sign Up Elements
-    const signupUsernameInput = document.getElementById('signup-username');
-    const signupPasswordInput = document.getElementById('signup-password');
-    const signupBtn = document.getElementById('signup-btn');
+// --- 2. LOGIN FUNCTION ---
+async function loginUser() {
+    const username = document.getElementById('username-input').value;
+    const password = document.getElementById('password-input').value;
+    const statusMsg = document.getElementById('status-message');
 
-    // Login Elements
-    const loginUsernameInput = document.getElementById('login-username');
-    const loginPasswordInput = document.getElementById('login-password');
-    const loginBtn = document.getElementById('login-btn');
+    // Query Supabase for the user
+    const { data, error } = await _supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .single();
 
-    // --- SIGN UP LOGIC ---
-    if (signupBtn) {
-        signupBtn.addEventListener('click', async () => {
-            const username = signupUsernameInput.value.trim();
-            const password = signupPasswordInput.value;
+    if (data) {
+        // BRICK 1: Save session locally so the browser remembers you
+        localStorage.setItem("aeroUser", username);
+        
+        console.log("Login successful!");
+        statusMsg.style.color = "green";
+        statusMsg.innerText = "Login successful!";
+    } else {
+        statusMsg.style.color = "red";
+        statusMsg.innerText = "Invalid username or password!";
+        console.error("Login failed.");
+    }
+}
 
-            if (!username || !password) {
-                alert('Please enter a username and password!');
-                return;
-            }
+// --- 3. REGISTER FUNCTION ---
+async function registerUser() {
+    const username = document.getElementById('username-input').value;
+    const password = document.getElementById('password-input').value;
+    const statusMsg = document.getElementById('status-message');
 
-            // 1. Check if username is already taken
-            const { data: existingUser, error: searchError } = await supabaseClient
-                .from('users')
-                .select('*')
-                .eq('username', username);
-
-            if (existingUser && existingUser.length > 0) {
-                alert('That username is already taken. Try another one!');
-                return;
-            }
-
-            // 2. Create the account (Tickets and Robux default automatically)
-            const { error } = await supabaseClient
-                .from('users')
-                .insert([{ username: username, password: password }]);
-
-            if (error) {
-                console.error(error);
-                alert('Error creating account: ' + error.message);
-            } else {
-                alert('Account created successfully! You can now log in.');
-                signupUsernameInput.value = '';
-                signupPasswordInput.value = '';
-            }
-        });
+    if (!username || !password) {
+        statusMsg.innerText = "Please enter both username and password.";
+        return;
     }
 
-    // --- LOGIN LOGIC ---
-    if (loginBtn) {
-        loginBtn.addEventListener('click', async () => {
-            const username = loginUsernameInput.value.trim();
-            const password = loginPasswordInput.value;
+    // Insert new user into database with starting currency
+    const { data, error } = await _supabase
+        .from('users')
+        .insert([{ username: username, password: password, robux: 10, tickets: 100 }]);
 
-            if (!username || !password) {
-                alert('Please enter your username and password!');
-                return;
-            }
-
-            // Search database for matching username AND password
-            const { data, error } = await supabaseClient
-                .from('users')
-                .select('*')
-                .eq('username', username)
-                .eq('password', password);
-
-            if (error) {
-                console.error(error);
-                alert('Database error during login.');
-                return;
-            }
-
-            if (data && data.length > 0) {
-                // Success! Save user data to browser storage
-                const loggedInUser = data[0];
-                localStorage.setItem('aeroblox_user', JSON.stringify(loggedInUser));
-                
-                // Send them to the My Character page
-                window.location.href = 'my-roblox.html';
-            } else {
-                alert('Invalid username or password.');
-            }
-        });
+    if (error) {
+        statusMsg.style.color = "red";
+        statusMsg.innerText = "Error creating account!";
+        console.error(error);
+    } else {
+        // Automatically save their session so they don't have to log in manually right after registering
+        localStorage.setItem("aeroUser", username);
+        statusMsg.style.color = "green";
+        statusMsg.innerText = "Account created and logged in!";
     }
-});
+}
