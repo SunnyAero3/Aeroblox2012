@@ -2,45 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AeroBLOX - Login</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- Guard: Redirect to dashboard if already logged in -->
+    <script>
+        if (localStorage.getItem("aeroUser")) {
+            window.location.href = "index.html";
+        }
+    </script>
+
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="top-nav">
-        <h1>AeroBLOX</h1>
-        <div class="nav-links">
-            <a href="index.html">Home</a> | 
-            <a href="games.html">Games</a> | 
-            <a href="login.html">Login</a>
+
+    <div class="main-container">
+        <!-- Navigation Bar -->
+        <div class="top-nav">
+            <h1>AeroBLOX</h1>
+            <div class="nav-links">
+                <a href="people.html">People</a>
+            </div>
+        </div>
+        
+        <!-- Login Module -->
+        <div class="module-box" style="width: 400px; margin: 40px auto;">
+            <div class="module-header">Member Login</div>
+            <div class="module-content" style="background: #fff; padding: 20px;">
+                
+                <div id="auth-forms">
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">Username:</label>
+                        <input type="text" id="username-input" style="width: 95%; padding: 6px; border: 1px solid #7f9db9;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">Password:</label>
+                        <input type="password" id="password-input" style="width: 95%; padding: 6px; border: 1px solid #7f9db9;">
+                    </div>
+                    
+                    <button id="login-btn" class="btn-classic" onclick="loginUser()">Login</button>
+                    <button id="register-btn" class="btn-classic" onclick="registerUser()">Register</button>
+                </div>
+
+                <!-- Status Message -->
+                <p id="status-message" style="font-size: 12px; font-weight: bold; margin-top: 15px; text-align: center; color: red;"></p>
+                
+            </div>
         </div>
     </div>
 
-    <div class="main-container login-container">
-        <h2>Login to your account</h2>
-        <div class="login-box">
-            <input type="text" id="login-username" placeholder="Username">
-            <input type="password" id="login-password" placeholder="Password">
-            <button id="login-btn" class="btn-aero">Login</button>
-        </div>
-
-        <hr>
-
-        <h2>New here? Sign up!</h2>
-        <div class="signup-box">
-            <input type="text" id="signup-username" placeholder="Choose a Username">
-            <input type="password" id="signup-password" placeholder="Create a Password">
-            <button id="signup-btn" class="btn-aero">Sign Up</button>
-        </div>
-    </div>
-
-    <footer>
-        <p>&copy; 2026 AeroBLOX. All rights reserved.</p>
-    </footer>
-
-<!-- Supabase Core Library & Config -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/config.js"></script>
+    <!-- Scripts -->
     <script src="js/auth.js"></script>
+    <script src="js/music.js"></script>
 </body>
 </html>
