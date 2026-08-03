@@ -15,7 +15,7 @@ function logoutUser() {
 
 // Login Function
 async function loginUser() {
-    const usernameInput = document.getElementById("login-username");
+    const usernameInput = document.getElementById("username-input");
     const username = usernameInput ? usernameInput.value.trim() : "";
 
     if (!username) {
@@ -41,7 +41,7 @@ async function loginUser() {
 
 // Register Function
 async function registerUser() {
-    const usernameInput = document.getElementById("login-username");
+    const usernameInput = document.getElementById("username-input");
     const username = usernameInput ? usernameInput.value.trim() : "";
 
     if (!username) {
