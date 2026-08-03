@@ -71,16 +71,32 @@ async function loadDashboard() {
         }
     }
 
-    // Badges
+    // Badges (with Acquired Date)
     const badgeContainer = document.getElementById("dash-badges-container");
-    const badges = user.badges && user.badges.length > 0 ? user.badges : ["Welcome to AeroBLOX"];
+    const defaultBadge = {
+        name: "Welcome to AeroBLOX",
+        acquired_at: user.created_at || new Date().toISOString()
+    };
+    const badgeList = (user.badges && user.badges.length > 0) ? user.badges : [defaultBadge];
+
     if (badgeContainer) {
-        badgeContainer.innerHTML = badges.map(b => `
-            <div class="item-card">
-                <div class="item-thumb" style="background:#fff8c4; font-weight:bold; color:#b88600;">★</div>
-                <div style="font-weight:bold; overflow:hidden; text-overflow:ellipsis;">${b}</div>
-            </div>
-        `).join('');
+        badgeContainer.innerHTML = badgeList.map(b => {
+            const isObj = typeof b === 'object' && b !== null;
+            const badgeName = isObj ? (b.name || "Badge") : b;
+            const dateAcquired = isObj && b.acquired_at 
+                ? new Date(b.acquired_at).toLocaleDateString() 
+                : (user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026");
+
+            return `
+                <div class="item-card">
+                    <div class="item-thumb" style="background:#fff8c4; font-weight:bold; color:#b88600; font-size: 16px;">★</div>
+                    <strong style="font-size: 11px; color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;" title="${badgeName}">${badgeName}</strong>
+                    <div style="font-size: 9px; color: #666; margin-top: 4px; border-top: 1px dashed #ccc; padding-top: 3px;">
+                        Got: <strong>${dateAcquired}</strong>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     // Game Passes with Timestamps
@@ -165,7 +181,7 @@ function applyAvatarColors(prefix, colors) {
     if (rLeg) rLeg.style.backgroundColor = colors.right_leg;
 }
 
-// Modal Enlargement Functions
+// Modal Functions
 function openAvatarModal() {
     const modal = document.getElementById("avatar-modal");
     if (modal) {
