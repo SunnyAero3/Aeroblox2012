@@ -7,14 +7,18 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .badge-grid, .inventory-grid, .friends-grid, .gamepass-grid { 
+        .badge-grid, .inventory-grid, .friends-grid { 
             display: flex; gap: 8px; flex-wrap: wrap; 
         }
         .item-card { width: 95px; border: 1px solid #ccc; padding: 6px; background: #fafafa; text-align: center; font-size: 10px; }
         .item-thumb { width: 100%; height: 45px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd; }
-        .gamepass-card { width: 170px; border: 1px solid #ccc; padding: 8px; background: #fdfdfd; font-size: 11px; line-height: 1.4; }
+        
+        /* Online Status Dot */
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .dot-online { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        .dot-offline { background-color: #ff3b30; box-shadow: 0 0 5px rgba(255, 59, 48, 0.6); }
 
-        /* Avatar Box & Hover Animation */
+        /* Avatar Box styling */
         .avatar-render-box { width: 110px; height: 140px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; border: 1px solid #ccc; padding: 5px; cursor: pointer; transition: transform 0.15s ease; }
         .avatar-render-box:hover { transform: scale(1.04); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
         .av-head { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #333; margin-bottom: 2px; }
@@ -23,95 +27,61 @@
         .av-torso { width: 28px; height: 40px; border: 1px solid #333; }
         .av-legs-row { display: flex; gap: 2px; margin-top: 2px; }
         .av-leg { width: 13px; height: 40px; border: 1px solid #333; }
-
-        /* Modal Lightbox for Enlarged Avatar */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #fff; padding: 20px; border-radius: 6px; border: 2px solid #003366; text-align: center; position: relative; width: 260px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-        .avatar-render-box-large { width: 180px; height: 230px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f0f0f0; border: 1px solid #aaa; padding: 10px; }
-        .avatar-render-box-large .av-head { width: 45px; height: 45px; }
-        .avatar-render-box-large .av-arm { width: 20px; height: 70px; }
-        .avatar-render-box-large .av-torso { width: 48px; height: 70px; }
-        .avatar-render-box-large .av-leg { width: 22px; height: 70px; }
-
-        /* Sub Navigation Bar Links */
-        .sub-nav-bar {
-            background: #e9a838; padding: 6px 12px; font-size: 13px; font-weight: bold; color: #fff;
-            display: flex; align-items: center; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid #c88820;
-        }
-        .sub-nav-bar a { color: #ffffff; text-decoration: none; padding: 2px 4px; }
-        .sub-nav-bar a:hover { text-decoration: underline; background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
-        .sub-nav-bar .divider { color: #f7d28d; font-weight: normal; }
     </style>
 </head>
 <body>
 
-    <!-- Avatar Lightbox Modal -->
-    <div id="avatar-modal" class="modal-overlay" onclick="closeAvatarModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 style="margin-top: 0; color: #003366; font-size: 16px;">My Avatar</h3>
-            <div class="avatar-render-box-large">
-                <div class="av-head" id="modal-av-head"></div>
-                <div class="av-torso-row">
-                    <div class="av-arm" id="modal-av-l-arm"></div>
-                    <div class="av-torso" id="modal-av-torso"></div>
-                    <div class="av-arm" id="modal-av-r-arm"></div>
-                </div>
-                <div class="av-legs-row">
-                    <div class="av-leg" id="modal-av-l-leg"></div>
-                    <div class="av-leg" id="modal-av-r-leg"></div>
-                </div>
-            </div>
-            <button class="btn-classic" style="margin-top: 15px; width: 80px;" onclick="closeAvatarModal()">Close</button>
-        </div>
-    </div>
-
     <div class="main-container">
         
-        <!-- Header Bar -->
+        <!-- Header Bar with Greeting & Robux / Tix -->
         <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
             <div id="user-greeting">
                 <span id="top-username-display" style="font-weight: bold;">Hi, User</span>
                 <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
             </div>
-            
-            <div id="currency-widget" style="display: flex; gap: 15px; align-items: center; font-weight: bold;">
-                <span style="color: #008000; display: flex; align-items: center; gap: 4px;"><span style="background: #008000; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">R$</span> <span id="top-robux-count">0</span></span>
-                <span style="color: #c68a00; display: flex; align-items: center; gap: 4px;"><span style="background: #c68a00; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">T$</span> <span id="top-tickets-count">0</span></span>
+            <div class="currency-display" style="display: flex; gap: 8px; font-weight: bold; font-size: 11px;">
+                <span style="background: #008000; color: #fff; padding: 2px 6px; border-radius: 2px;">R$ 1000</span>
+                <span style="background: #d68910; color: #fff; padding: 2px 6px; border-radius: 2px;">T$ 1000</span>
             </div>
         </div>
 
-        <!-- Primary Main Navigation Bar -->
-        <div class="top-nav">
-            <h1>AeroBLOX</h1>
-            <div class="nav-links">
-                <a href="index.html" class="active">My AeroBLOX</a> | <a href="#">Games</a> | <a href="#">Catalog</a> | <a href="people.html">People</a> | <a href="#">Forum</a>
+        <!-- Centered Primary Navigation -->
+        <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
+            <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
+            <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
+                <a href="index.html" style="color: #fff; text-decoration: none; font-weight: bold;">My AeroBLOX</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Games</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Catalog</a> | 
+                <a href="people.html" style="color: #fff; text-decoration: none;">People</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Forum</a>
             </div>
         </div>
 
-        <!-- Sub-Navigation Bar -->
-        <div class="sub-nav-bar">
-            <a href="index.html">Home</a> <span class="divider">|</span>
-            <a href="#">Places</a> <span class="divider">|</span>
-            <a href="#">Inbox</a> <span class="divider">|</span>
-            <a href="#">Account</a> <span class="divider">|</span>
-            <a href="profile.html" id="subnav-my-profile">Profile</a> <span class="divider">|</span>
-            <a href="people.html">Friends</a> <span class="divider">|</span>
-            <a href="#">Character</a> <span class="divider">|</span>
-            <a href="#">Stuff</a> <span class="divider">|</span>
-            <a href="#">Money</a>
+        <!-- Sub Navigation Bar -->
+        <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
+            <a href="index.html" style="color: #fff; text-decoration: none;">Home</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Places</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Inbox</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Account</a>
+            <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Friends</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Character</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Stuff</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Money</a>
         </div>
 
-        <!-- Main Body Content -->
+        <!-- Dashboard Content -->
         <div class="dashboard-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
             
-            <!-- Left Column -->
+            <!-- Left Sidebar Column -->
             <div class="left-col" style="width: 220px; flex-shrink: 0;">
-                <h2 id="dash-greeting" style="font-size: 18px; color: #003366; margin: 0 0 10px 0;">Hi...</h2>
                 
-                <!-- Avatar Preview Box -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-content" style="text-align: center; background: #fff; padding: 10px;">
-                        <div class="avatar-render-box" onclick="openAvatarModal()" title="Click to enlarge avatar">
+                <h2 id="home-username" style="font-size: 18px; color: #003366; margin: 0 0 10px 0;">Hi, User</h2>
+
+                <!-- Avatar Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-content" style="text-align: center; padding: 10px;">
+                        <div class="avatar-render-box" id="avatar-container" onclick="window.location.href='profile.html'">
                             <div class="av-head" id="dash-av-head"></div>
                             <div class="av-torso-row">
                                 <div class="av-arm" id="dash-av-l-arm"></div>
@@ -127,105 +97,96 @@
                     </div>
                 </div>
 
-                <!-- My Balance -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header">My Balance</div>
-                    <div class="module-content" style="background: #fff; padding: 10px; font-size: 11px; font-weight: bold;">
-                        <p style="color: #008000; margin: 0 0 5px 0;">R$ Robux: <span id="dash-robux-count">0</span></p>
-                        <p style="color: #c68a00; margin: 0;">T$ Tickets: <span id="dash-tickets-count">0</span></p>
+                <!-- My Balance Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Balance</div>
+                    <div class="module-content" style="padding: 10px; font-size: 11px;">
+                        <p style="margin: 0 0 4px 0; color: #008000; font-weight: bold;">R$ Robux: 1000</p>
+                        <p style="margin: 0; color: #d68910; font-weight: bold;">T$ Tickets: 1000</p>
                     </div>
                 </div>
 
-                <!-- Best Friends -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header">Best Friends</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <div id="dash-best-friends-container" class="friends-grid">
-                            <p style="font-size: 11px; color: #666; margin: 0;">No best friends listed.</p>
-                        </div>
+                <!-- Best Friends Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Best Friends</div>
+                    <div class="module-content" style="padding: 10px;">
+                        <p style="font-size: 11px; color: #666; margin: 0;">No best friends listed.</p>
                     </div>
                 </div>
 
                 <!-- Friends Box -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header" id="dash-friends-title">Friends (0)</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <div id="dash-friends-container" class="friends-grid">
-                            <p style="font-size: 11px; color: #666; margin: 0;">No friends added.</p>
-                        </div>
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Friends (0)</div>
+                    <div class="module-content" style="padding: 10px;">
+                        <p style="font-size: 11px; color: #666; margin: 0;">No friends added.</p>
                     </div>
                 </div>
 
-                <!-- Account Info -->
-                <div class="module-box">
-                    <div class="module-header">Account Details</div>
-                    <div class="module-content" style="background: #fff; padding: 10px; font-size: 11px;">
-                        <p style="margin: 0 0 4px 0;"><strong>Joined:</strong> <span id="dash-join-date">Loading...</span></p>
-                        <p style="margin: 0;"><strong>Last Active:</strong> <span id="dash-last-online">Just now</span></p>
+                <!-- Account Details Box -->
+                <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Account Details</div>
+                    <div class="module-content" style="padding: 10px; font-size: 11px;">
+                        <p style="margin: 0 0 4px 0;"><strong>Joined:</strong> <span id="dash-join-date">8/2/2026</span></p>
+                        <p style="margin: 0;"><strong>Last Active:</strong> <span id="dash-last-active">8/3/2026</span></p>
                     </div>
                 </div>
+
             </div>
 
-            <!-- Right Column -->
+            <!-- Right Main Area -->
             <div class="right-col" style="flex-grow: 1;">
                 
-                <!-- Status Box -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header">Current Status</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <label style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 5px;">Right now I'm:</label>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="text" id="status-input" style="flex-grow: 1; padding: 4px; border: 1px solid #7f9db9;" placeholder="What are you up to?">
+                <!-- Current Status Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Current Status</div>
+                    <div class="module-content" style="padding: 10px;">
+                        <label style="display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px;">Right now I'm:</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="status-input" placeholder="What are you up to?" style="flex-grow: 1; padding: 4px; border: 1px solid #999; border-radius: 2px;">
                             <button class="btn-classic" onclick="updateStatus()">Update Status</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- My Feed -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header">My Feed</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <p id="feed-display" style="font-size: 11px; color: #555; margin: 0;">No status updates yet!</p>
+                <!-- My Feed Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Feed</div>
+                    <div class="module-content" style="padding: 10px; font-size: 11px;">
+                        <p id="feed-status-text" style="margin: 0; font-style: italic;">"No status set"</p>
                     </div>
                 </div>
 
-                <!-- Showcase Places -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header">My Places</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <div class="item-card" style="width: 110px;">
-                            <div class="item-thumb" style="height: 60px;">Place</div>
-                            <span style="font-weight: bold; color: #003366; display: block;">Starter Place</span>
-                            <span style="font-size: 10px; color: #666;">Visits: <strong id="dash-place-visits">0</strong></span>
+                <!-- My Places Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Places</div>
+                    <div class="module-content" style="padding: 10px;">
+                        <div class="item-card" style="width: 120px;">
+                            <div class="item-thumb" style="height: 70px;">Place</div>
+                            <strong style="display: block; color: #003366;">Starter Place</strong>
+                            <span style="font-size: 10px; color: #666;">Visits: 0</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- My Badges -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header">My Badges</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <div id="dash-badges-container" class="badge-grid"></div>
-                    </div>
-                </div>
-
-                <!-- Game Passes -->
-                <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header">Game Passes</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <div id="dash-gamepasses-container" class="gamepass-grid">
-                            <p style="font-size: 11px; color: #666; margin: 0;">Loading game passes...</p>
+                <!-- My Badges Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Badges</div>
+                    <div class="module-content" style="padding: 10px;">
+                        <div class="badge-grid">
+                            <div class="item-card">
+                                <div class="item-thumb" style="background: #fff8c4; color: #b88600; font-weight: bold;">★</div>
+                                <strong style="font-size: 10px; color: #003366;">Welcome to Aer...</strong>
+                                <div style="font-size: 9px; color: #666; margin-top: 4px;">Got: 8/2/2026</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- My Inventory -->
-                <div class="module-box">
-                    <div class="module-header">My Inventory</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <div id="dash-inventory-container" class="inventory-grid">
-                            <p style="font-size: 11px; color: #666; margin: 0;">Inventory is empty.</p>
-                        </div>
+                <!-- Game Passes Box -->
+                <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Game Passes</div>
+                    <div class="module-content" style="padding: 10px;">
+                        <p style="font-size: 11px; color: #666; margin: 0;">No game passes found.</p>
                     </div>
                 </div>
 
@@ -237,7 +198,6 @@
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
-    <script src="js/home.js"></script>
     <script src="js/music.js"></script>
 </body>
 </html>
