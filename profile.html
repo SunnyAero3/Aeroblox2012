@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AeroBLOX - View Profile</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <!-- Top Header Bar with User Info & Currency -->
+        <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
+            <div id="user-greeting">
+                <span id="top-username-display" style="font-weight: bold;">Guest</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px; display: none;" onclick="logoutUser()">Logout</button>
+            </div>
+            
+            <div id="currency-widget" style="display: flex; gap: 15px; align-items: center; font-weight: bold;">
+                <span style="color: #008000; display: flex; align-items: center; gap: 4px;">
+                    <span style="background: #008000; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">R$</span> 
+                    <span id="top-robux-count">0</span>
+                </span>
+                <span style="color: #c68a00; display: flex; align-items: center; gap: 4px;">
+                    <span style="background: #c68a00; color: #fff; border-radius: 3px; padding: 1px 4px; font-size: 10px;">T$</span> 
+                    <span id="top-tickets-count">0</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Primary Main Navigation Bar -->
+        <div class="top-nav">
+            <h1>AeroBLOX</h1>
+            <div class="nav-links">
+                <a href="index.html">My AeroBLOX</a> | 
+                <a href="#">Games</a> | 
+                <a href="#">Catalog</a> | 
+                <a href="people.html">People</a> | 
+                <a href="#">Forum</a>
+            </div>
+        </div>
+
+        <!-- Main Profile Body -->
+        <div class="dashboard-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
+            
+            <!-- Left Column: Avatar & Basic Details -->
+            <div class="left-col" style="width: 220px; flex-shrink: 0;">
+                <h2 id="profile-username-header" style="font-size: 20px; color: #003366; margin-top: 0; word-break: break-all;">Loading...</h2>
+                
+                <!-- Avatar Box -->
+                <div class="module-box" style="margin-bottom: 15px;">
+                    <div class="module-content" style="text-align: center; background: #ffffff; padding: 10px;">
+                        <div style="background: #e9e9e9; width: 160px; height: 180px; margin: 0 auto; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center;">
+                            <p style="font-size: 11px; color: #777;">Avatar<br>Coming Soon</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information Module -->
+                <div class="module-box">
+                    <div class="module-header">User Information</div>
+                    <div class="module-content" style="background: #fff; padding: 10px; font-size: 11px; line-height: 1.6;">
+                        <p style="margin: 0;"><strong>Joined:</strong> <span id="profile-join-date">Loading...</span></p>
+                        <p style="margin: 0;"><strong>Status:</strong> <span id="profile-online-status" style="color: green; font-weight: bold;">Offline</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Status / Blurb & Activity -->
+            <div class="right-col" style="flex-grow: 1;">
+                
+                <!-- Status/Blurb Display -->
+                <div class="module-box" style="margin-bottom: 15px;">
+                    <div class="module-header" id="profile-blurb-title">User Status</div>
+                    <div class="module-content" style="background: #fff; padding: 15px;">
+                        <p id="profile-status-text" style="font-size: 13px; font-style: italic; color: #333; margin: 0;">
+                            No status provided yet.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Showcase Places Module -->
+                <div class="module-box">
+                    <div class="module-header" id="profile-places-title">Showcase Places</div>
+                    <div class="module-content" style="background: #fff; padding: 15px;">
+                        <div id="profile-places-container" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <!-- Default Place Placeholder -->
+                            <div style="width: 130px; border: 1px solid #ccc; padding: 6px; background: #f9f9f9; text-align: center;">
+                                <div style="width: 100%; height: 80px; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #666; margin-bottom: 6px;">
+                                    Place Thumbnail
+                                </div>
+                                <span id="profile-place-name" style="font-size: 11px; font-weight: bold; color: #003366; display: block; overflow: hidden; text-overflow: ellipsis;">Starter Place</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/music.js"></script>
+</body>
+</html>
