@@ -49,7 +49,7 @@
         <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
             <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
             <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
-                <a href="index.html" style="color: #fff; text-decoration: none; font-weight: bold;">My AeroBLOX</a> | 
+                <a href="index.html" style="color: #fff; text-decoration: underline; font-weight: bold;">My AeroBLOX</a> | 
                 <a href="#" style="color: #fff; text-decoration: none;">Games</a> | 
                 <a href="#" style="color: #fff; text-decoration: none;">Catalog</a> | 
                 <a href="people.html" style="color: #fff; text-decoration: none;">People</a> | 
@@ -59,13 +59,13 @@
 
         <!-- Centered Sub Navigation Bar -->
         <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
-            <a href="index.html" style="color: #fff; text-decoration: none;">Home</a>
+            <a href="index.html" style="color: #fff; text-decoration: underline;">Home</a>
             <a href="#" style="color: #fff; text-decoration: none;">Places</a>
             <a href="inbox.html" style="color: #fff; text-decoration: none;">Inbox</a>
             <a href="messages.html" style="color: #fff; text-decoration: none;">Messages</a>
             <a href="#" style="color: #fff; text-decoration: none;">Account</a>
             <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
-            <a href="#" style="color: #fff; text-decoration: none;">Friends</a>
+            <a href="friends.html" style="color: #fff; text-decoration: none;">Friends</a>
             <a href="#" style="color: #fff; text-decoration: none;">Character</a>
             <a href="#" style="color: #fff; text-decoration: none;">Stuff</a>
             <a href="#" style="color: #fff; text-decoration: none;">Money</a>
@@ -109,7 +109,10 @@
 
                 <!-- Best Friends Box -->
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
-                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Best Friends</div>
+                    <div class="module-header" id="dash-best-friends-title" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Best Friends</span>
+                        <a href="friends.html?view=best" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
+                    </div>
                     <div class="module-content" id="dash-best-friends-container" style="padding: 10px;">
                         <p style="font-size: 11px; color: #666; margin: 0;">Loading...</p>
                     </div>
@@ -117,7 +120,10 @@
 
                 <!-- Friends Box -->
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
-                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;" id="dash-friends-title">Friends</div>
+                    <div class="module-header" id="dash-friends-title" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Friends</span>
+                        <a href="friends.html" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
+                    </div>
                     <div class="module-content" id="dash-friends-container" style="padding: 10px;">
                         <p style="font-size: 11px; color: #666; margin: 0;">Loading...</p>
                     </div>
