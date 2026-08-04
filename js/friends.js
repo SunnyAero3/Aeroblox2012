@@ -1,10 +1,13 @@
 /**
- * js/friends.js - Friends & Best Friends System
+ * js/friends.js - Friends, Best Friends & Friend Requests System
  */
 
 let currentViewTab = "friends";
+let cachedFriends = [];
+let cachedBestFriends = [];
+let cachedRequests = [];
 
-// Load friends data for both index.html dashboard and friends.html
+// Fetch user data & update counts
 async function loadFriendsData() {
     const currentUser = localStorage.getItem("aeroUser");
     if (!currentUser || typeof _supabase === 'undefined') return;
@@ -12,29 +15,41 @@ async function loadFriendsData() {
     try {
         const { data: user, error } = await _supabase
             .from('users')
-            .select('friends, best_friends')
+            .select('friends, best_friends, friend_requests')
             .eq('username', currentUser)
             .single();
 
         if (error) throw error;
 
-        const friends = user.friends || [];
-        const bestFriends = user.best_friends || [];
+        cachedFriends = user.friends || [];
+        cachedBestFriends = user.best_friends || [];
+        cachedRequests = user.friend_requests || [];
 
-        // Dashboard rendering (index.html)
+        // Update tab buttons on friends.html
+        const tabFriends = document.getElementById("tab-friends");
+        const tabBest = document.getElementById("tab-best-friends");
+        const tabReq = document.getElementById("tab-requests");
+
+        if (tabFriends) tabFriends.innerText = `My Friends (${cachedFriends.length})`;
+        if (tabBest) tabBest.innerText = `My Best Friends (${cachedBestFriends.length})`;
+        if (tabReq) tabReq.innerText = `Friend Requests (${cachedRequests.length})`;
+
+        // Dashboard preview rendering (index.html)
         if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/") {
-            renderFriendsPreview(friends, "dash-friends-container");
-            renderFriendsPreview(bestFriends, "dash-best-friends-container");
+            renderFriendsPreview(cachedFriends, "dash-friends-container", `Friends (${cachedFriends.length})`, "dash-friends-title");
+            renderFriendsPreview(cachedBestFriends, "dash-best-friends-container", `Best Friends (${cachedBestFriends.length})`);
         }
 
-        // Friends page rendering (friends.html)
+        // Render current active tab if on friends.html
         if (window.location.pathname.endsWith("friends.html")) {
             const urlParams = new URLSearchParams(window.location.search);
             const viewParam = urlParams.get('view');
             if (viewParam === 'best') {
                 switchFriendsTab('best');
+            } else if (viewParam === 'requests') {
+                switchFriendsTab('requests');
             } else {
-                renderFullFriendsList(friends, "My Friends");
+                switchFriendsTab(currentViewTab);
             }
         }
 
@@ -43,9 +58,14 @@ async function loadFriendsData() {
     }
 }
 
-// Render small dashboard preview cards
-function renderFriendsPreview(friendArray, containerId) {
+// Render Dashboard Preview Cards
+function renderFriendsPreview(friendArray, containerId, headerText, titleId) {
     const container = document.getElementById(containerId);
+    if (titleId && document.getElementById(titleId)) {
+        const titleSpan = document.getElementById(titleId).querySelector("span");
+        if (titleSpan) titleSpan.innerText = headerText;
+    }
+
     if (!container) return;
 
     if (!friendArray || friendArray.length === 0) {
@@ -68,50 +88,51 @@ function renderFriendsPreview(friendArray, containerId) {
     container.innerHTML = html;
 }
 
-// Switch between Friends and Best Friends views on friends.html
-async function switchFriendsTab(tabType) {
+// Switch Tabs on friends.html
+function switchFriendsTab(tabType) {
     currentViewTab = tabType;
-    const currentUser = localStorage.getItem("aeroUser");
-    
+
     document.getElementById("tab-friends")?.classList.toggle("active", tabType === 'friends');
     document.getElementById("tab-best-friends")?.classList.toggle("active", tabType === 'best');
+    document.getElementById("tab-requests")?.classList.toggle("active", tabType === 'requests');
 
     const titleEl = document.getElementById("friends-page-title");
-    if (titleEl) titleEl.innerText = tabType === 'best' ? "My Best Friends" : "My Friends";
 
-    try {
-        const { data: user } = await _supabase
-            .from('users')
-            .select('friends, best_friends')
-            .eq('username', currentUser)
-            .single();
-
-        const list = tabType === 'best' ? (user.best_friends || []) : (user.friends || []);
-        renderFullFriendsList(list, titleEl.innerText);
-    } catch (err) {
-        console.error("Error switching tabs:", err);
+    if (tabType === 'friends') {
+        if (titleEl) titleEl.innerText = `My Friends (${cachedFriends.length})`;
+        renderFriendsGrid(cachedFriends);
+    } else if (tabType === 'best') {
+        if (titleEl) titleEl.innerText = `My Best Friends (${cachedBestFriends.length})`;
+        renderFriendsGrid(cachedBestFriends);
+    } else if (tabType === 'requests') {
+        if (titleEl) titleEl.innerText = `Friend Requests (${cachedRequests.length})`;
+        renderRequestsGrid(cachedRequests);
     }
 }
 
-// Render full grid with messaging shortcut
-function renderFullFriendsList(friendArray, title) {
+// Render Friends and Best Friends grid
+function renderFriendsGrid(list) {
     const container = document.getElementById("friends-page-container");
     if (!container) return;
 
-    if (!friendArray || friendArray.length === 0) {
+    if (!list || list.length === 0) {
         container.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No users in this list.</p>`;
         return;
     }
 
     let html = '<div class="friends-grid">';
-    friendArray.forEach(friend => {
+    list.forEach(friend => {
+        const isBest = cachedBestFriends.includes(friend);
         html += `
             <div class="friend-card">
                 <div class="friend-thumb">
                     <img src="images/default_avatar.png" alt="Avatar" style="width: 40px; height: 40px;" onerror="this.src='https://via.placeholder.com/40';">
                 </div>
-                <strong style="color: #003366; display: block; overflow: hidden; text-overflow: ellipsis;">${friend}</strong>
-                <a href="messages.html?to=${encodeURIComponent(friend)}" class="btn-msg">Send Message</a>
+                <strong style="color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">${friend}</strong>
+                <a href="messages.html?to=${encodeURIComponent(friend)}" class="btn-action btn-green">Message</a>
+                <button onclick="toggleBestFriend('${friend}')" class="btn-action ${isBest ? 'btn-gold' : 'btn-blue'}">
+                    ${isBest ? '★ Best Friend' : '+ Best Friend'}
+                </button>
             </div>
         `;
     });
@@ -119,7 +140,34 @@ function renderFullFriendsList(friendArray, title) {
     container.innerHTML = html;
 }
 
-// Functional Friend Request handler for people.html
+// Render Pending Friend Requests
+function renderRequestsGrid(requests) {
+    const container = document.getElementById("friends-page-container");
+    if (!container) return;
+
+    if (!requests || requests.length === 0) {
+        container.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No pending friend requests.</p>`;
+        return;
+    }
+
+    let html = '<div class="friends-grid">';
+    requests.forEach(requester => {
+        html += `
+            <div class="friend-card">
+                <div class="friend-thumb">
+                    <img src="images/default_avatar.png" alt="Avatar" style="width: 40px; height: 40px;" onerror="this.src='https://via.placeholder.com/40';">
+                </div>
+                <strong style="color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">${requester}</strong>
+                <button onclick="acceptFriendRequest('${requester}')" class="btn-action btn-green">Accept</button>
+                <button onclick="rejectFriendRequest('${requester}')" class="btn-action btn-red">Reject</button>
+            </div>
+        `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+// Send Friend Request from people.html
 async function sendFriendRequest(targetUsername) {
     const currentUser = localStorage.getItem("aeroUser");
     if (!currentUser) {
@@ -132,37 +180,146 @@ async function sendFriendRequest(targetUsername) {
     }
 
     try {
-        const { data: user } = await _supabase
+        const { data: targetUser, error: fetchErr } = await _supabase
             .from('users')
-            .select('friends')
-            .eq('username', currentUser)
+            .select('friends, friend_requests')
+            .eq('username', targetUsername)
             .single();
 
-        let currentFriends = user.friends || [];
-        
-        if (currentFriends.includes(targetUsername)) {
-            alert(`${targetUsername} is already on your friends list!`);
+        if (fetchErr || !targetUser) {
+            alert("User not found.");
             return;
         }
 
-        currentFriends.push(targetUsername);
+        let targetFriends = targetUser.friends || [];
+        let targetRequests = targetUser.friend_requests || [];
 
-        const { error } = await _supabase
+        if (targetFriends.includes(currentUser)) {
+            alert(`You are already friends with ${targetUsername}!`);
+            return;
+        }
+
+        if (targetRequests.includes(currentUser)) {
+            alert(`Friend request already pending for ${targetUsername}.`);
+            return;
+        }
+
+        targetRequests.push(currentUser);
+
+        const { error: updateErr } = await _supabase
             .from('users')
-            .update({ friends: currentFriends })
-            .eq('username', currentUser);
+            .update({ friend_requests: targetRequests })
+            .eq('username', targetUsername);
 
-        if (error) throw error;
-        alert(`Successfully added ${targetUsername} as a friend!`);
-        
+        if (updateErr) throw updateErr;
+        alert(`Friend request sent to ${targetUsername}!`);
+
     } catch (err) {
-        console.error("Error adding friend:", err);
-        alert("Could not add friend.");
+        console.error("Error sending friend request:", err);
+        alert("Could not send friend request.");
     }
 }
 
+// Accept Friend Request
+async function acceptFriendRequest(requester) {
+    const currentUser = localStorage.getItem("aeroUser");
+    if (!currentUser) return;
+
+    try {
+        // 1. Update current user: remove request and add friend
+        let updatedRequests = cachedRequests.filter(name => name !== requester);
+        let updatedFriends = [...cachedFriends];
+        if (!updatedFriends.includes(requester)) updatedFriends.push(requester);
+
+        const { error: selfErr } = await _supabase
+            .from('users')
+            .update({ friends: updatedFriends, friend_requests: updatedRequests })
+            .eq('username', currentUser);
+
+        if (selfErr) throw selfErr;
+
+        // 2. Update requester: add current user to their friends list
+        const { data: reqData } = await _supabase
+            .from('users')
+            .select('friends')
+            .eq('username', requester)
+            .single();
+
+        let reqFriends = reqData ? (reqData.friends || []) : [];
+        if (!reqFriends.includes(currentUser)) reqFriends.push(currentUser);
+
+        await _supabase
+            .from('users')
+            .update({ friends: reqFriends })
+            .eq('username', requester);
+
+        alert(`You are now friends with ${requester}!`);
+        loadFriendsData();
+
+    } catch (err) {
+        console.error("Error accepting request:", err);
+        alert("Failed to accept friend request.");
+    }
+}
+
+// Reject Friend Request
+async function rejectFriendRequest(requester) {
+    const currentUser = localStorage.getItem("aeroUser");
+    if (!currentUser) return;
+
+    try {
+        let updatedRequests = cachedRequests.filter(name => name !== requester);
+
+        const { error } = await _supabase
+            .from('users')
+            .update({ friend_requests: updatedRequests })
+            .eq('username', currentUser);
+
+        if (error) throw error;
+
+        alert(`Friend request from ${requester} rejected.`);
+        loadFriendsData();
+
+    } catch (err) {
+        console.error("Error rejecting request:", err);
+        alert("Failed to reject friend request.");
+    }
+}
+
+// Toggle Best Friend Status
+async function toggleBestFriend(targetUsername) {
+    const currentUser = localStorage.getItem("aeroUser");
+    if (!currentUser) return;
+
+    try {
+        let updatedBest = [...cachedBestFriends];
+        if (updatedBest.includes(targetUsername)) {
+            updatedBest = updatedBest.filter(name => name !== targetUsername);
+        } else {
+            updatedBest.push(targetUsername);
+        }
+
+        const { error } = await _supabase
+            .from('users')
+            .update({ best_friends: updatedBest })
+            .eq('username', currentUser);
+
+        if (error) throw error;
+
+        loadFriendsData();
+
+    } catch (err) {
+        console.error("Error toggling best friend:", err);
+        alert("Could not update best friends status.");
+    }
+}
+
+// Make functions accessible to inline HTML triggers
 window.switchFriendsTab = switchFriendsTab;
 window.sendFriendRequest = sendFriendRequest;
+window.acceptFriendRequest = acceptFriendRequest;
+window.rejectFriendRequest = rejectFriendRequest;
+window.toggleBestFriend = toggleBestFriend;
 
 document.addEventListener("DOMContentLoaded", () => {
     loadFriendsData();
