@@ -44,7 +44,7 @@ async function checkAuth() {
 
     if (!loggedInUser) return;
 
-    // 1. Update Username Greeting across all variations of element IDs
+    // 1. Update Username Greeting across all element ID variations
     const dashGreeting = document.getElementById("dash-greeting");
     const topUsernameDisplay = document.getElementById("top-username-display");
     const homeUsername = document.getElementById("home-username");
@@ -58,16 +58,22 @@ async function checkAuth() {
         try {
             const { data: userData, error } = await _supabase
                 .from('users')
-                .select('robux, tickets, tix')
+                .select('*')
                 .eq('username', loggedInUser)
-                .single();
+                .maybeSingle();
 
-            if (userData && !error) {
+            if (error) {
+                console.error("Supabase error loading currency:", error);
+                return;
+            }
+
+            if (userData) {
                 const robuxEl = document.getElementById("top-robux-count");
                 const tixEl = document.getElementById("top-tickets-count");
 
-                const robuxVal = userData.robux ?? 0;
-                const tixVal = userData.tickets ?? userData.tix ?? 0;
+                // Account for variations in database column casing/naming
+                const robuxVal = userData.robux ?? userData.Robux ?? 10;
+                const tixVal = userData.tickets ?? userData.tix ?? userData.Tickets ?? userData.Tix ?? 100;
 
                 if (robuxEl) robuxEl.innerText = robuxVal;
                 if (tixEl) tixEl.innerText = tixVal;
@@ -95,7 +101,7 @@ async function handleAuth(event) {
             .from('users')
             .select('*')
             .eq('username', usernameInput)
-            .single();
+            .maybeSingle();
 
         if (error || !user) {
             showAuthError("Username not found!");
@@ -135,7 +141,7 @@ async function handleRegister() {
             .from('users')
             .select('username')
             .eq('username', usernameInput)
-            .single();
+            .maybeSingle();
 
         if (existingUser) {
             showAuthError("Username is already taken!");
@@ -144,23 +150,17 @@ async function handleRegister() {
 
         const now = new Date().toISOString();
 
-        // Create new account entry in Supabase
+        // Register new account with default 10 Robux & 100 Tix
         const newUser = {
             username: usernameInput,
             password: passwordInput,
-            robux: 0,
-            tickets: 0,
+            robux: 10,
+            tickets: 100,
+            tix: 100,
             created_at: now,
             last_online: now,
             status: "Hello AeroBLOX!",
-            place_visits: 0,
-            friends: [],
-            best_friends: [],
-            badges: [
-                { name: "Welcome to AeroBLOX", acquired_at: now }
-            ],
-            gamepasses: [],
-            inventory: []
+            place_visits: 0
         };
 
         const { error: insertError } = await _supabase
@@ -168,7 +168,8 @@ async function handleRegister() {
             .insert([newUser]);
 
         if (insertError) {
-            showAuthError("Could not create account.");
+            console.error("Supabase Insert Error:", insertError);
+            showAuthError(`Could not create account: ${insertError.message}`);
             return;
         }
 
