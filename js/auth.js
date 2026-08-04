@@ -40,7 +40,6 @@ async function handleAuth(event) {
     }
 
     try {
-        // Query user from Supabase 'users' table
         const { data: user, error } = await _supabase
             .from('users')
             .select('*')
@@ -52,22 +51,17 @@ async function handleAuth(event) {
             return;
         }
 
-        // Check password
         if (user.password !== passwordInput) {
             showAuthError("Incorrect password!");
             return;
         }
 
-        // Update last_online timestamp
         await _supabase
             .from('users')
             .update({ last_online: new Date().toISOString() })
             .eq('username', user.username);
 
-        // Store session in localStorage
         localStorage.setItem("aeroUser", user.username);
-
-        // Redirect to index page
         window.location.href = "index.html";
     } catch (err) {
         console.error("Auth error:", err);
@@ -86,7 +80,6 @@ async function handleRegister() {
     }
 
     try {
-        // Check if user already exists
         const { data: existingUser } = await _supabase
             .from('users')
             .select('username')
@@ -98,17 +91,21 @@ async function handleRegister() {
             return;
         }
 
-        // Create new account entry in Supabase
+        const now = new Date().toISOString();
+
+        // Create new account entry in Supabase with Welcome Badge pre-assigned
         const newUser = {
             username: usernameInput,
             password: passwordInput,
-            created_at: new Date().toISOString(),
-            last_online: new Date().toISOString(),
+            created_at: now,
+            last_online: now,
             status: "Hello AeroBLOX!",
             place_visits: 0,
             friends: [],
             best_friends: [],
-            badges: [{ name: "Welcome to AeroBLOX", acquired_at: new Date().toISOString() }],
+            badges: [
+                { name: "Welcome to AeroBLOX", acquired_at: now }
+            ],
             gamepasses: [],
             inventory: []
         };
@@ -122,7 +119,6 @@ async function handleRegister() {
             return;
         }
 
-        // Save session & redirect
         localStorage.setItem("aeroUser", usernameInput);
         window.location.href = "index.html";
     } catch (err) {
@@ -148,7 +144,7 @@ function showAuthError(msg) {
     }
 }
 
-// Global scope attachment for inline HTML event attributes (onsubmit/onclick)
+// Global scope attachment
 window.handleAuth = handleAuth;
 window.handleRegister = handleRegister;
 window.logoutUser = logoutUser;
@@ -164,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "index.html";
     }
 
-    // Update Header Display Name if logged in
     const topUsernameDisplay = document.getElementById("top-username-display");
     if (topUsernameDisplay && loggedInUser) {
         topUsernameDisplay.innerText = `Hi, ${loggedInUser}`;
@@ -175,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
         homeUsername.innerText = `Hi, ${loggedInUser}`;
     }
 
-    // Heartbeat: update online timestamp immediately & every 2 minutes
     if (loggedInUser) {
         sendOnlineHeartbeat();
         setInterval(sendOnlineHeartbeat, 2 * 60 * 1000);
