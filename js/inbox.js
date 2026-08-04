@@ -212,7 +212,14 @@ window.showCompose = showCompose;
 window.sendMessage = sendMessage;
 
 // Page Initialization
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    // Force auth check / top-bar update if defined in auth.js
+    if (typeof checkAuth === "function") {
+        await checkAuth();
+    } else if (typeof updateTopBar === "function") {
+        await updateTopBar();
+    }
+
     if (window.location.pathname.endsWith("inbox.html")) {
         const urlParams = new URLSearchParams(window.location.search);
         const toUser = urlParams.get('to');
