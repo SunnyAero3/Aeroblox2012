@@ -24,31 +24,42 @@ const AEROBLOX_SITE_BADGES = [
     "Outrageous Builders Club"
 ];
 
+let statusInterval = null;
+
+/**
+ * Updates the Online/Offline status UI elements based on last_online timestamp
+ */
+function updateStatusDisplay(lastOnlineTimestamp) {
+    const statusDot = document.getElementById("status-dot");
+    const statusText = document.getElementById("status-text");
+    
+    const lastOnlineTime = lastOnlineTimestamp ? new Date(lastOnlineTimestamp) : null;
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+    if (lastOnlineTime && lastOnlineTime > fiveMinutesAgo) {
+        if (statusDot) statusDot.className = "status-dot dot-online";
+        if (statusText) { 
+            statusText.innerText = "Online"; 
+            statusText.style.color = "#2ecc71"; 
+        }
+    } else {
+        if (statusDot) statusDot.className = "status-dot dot-offline";
+        if (statusText) { 
+            statusText.innerText = "Offline"; 
+            statusText.style.color = "#ff3b30"; 
+        }
+    }
+}
+
 async function loadUserProfile() {
     const urlParams = new URLSearchParams(window.location.search);
     const targetUsername = urlParams.get("user") || localStorage.getItem("aeroUser");
     const loggedInUser = localStorage.getItem("aeroUser");
 
-    // Fetch & Display Logged-In User's Live Currency
+    // Display Logged-In User Greeting
     if (loggedInUser) {
         const topGreeting = document.getElementById("top-username-display");
         if (topGreeting) topGreeting.innerText = `Hi, ${loggedInUser}`;
-
-        const { data: activeUser } = await _supabase
-            .from('users')
-            .select('robux, tix')
-            .eq('username', loggedInUser)
-            .single();
-
-        if (activeUser) {
-            const robuxEl = document.getElementById("top-robux-count");
-            const tixEl = document.getElementById("top-tix-count");
-            const currencyBar = document.getElementById("top-currency-bar");
-
-            if (robuxEl) robuxEl.innerText = (activeUser.robux ?? 0).toLocaleString();
-            if (tixEl) tixEl.innerText = (activeUser.tix ?? 0).toLocaleString();
-            if (currencyBar) currencyBar.style.display = "flex";
-        }
     }
 
     if (!targetUsername) {
@@ -78,25 +89,22 @@ async function loadUserProfile() {
     const profilePlaceName = document.getElementById("profile-place-name");
     if (profilePlaceName) profilePlaceName.innerText = `${user.username}'s Place`;
 
-    // Online Status Calculation (Within 5 mins)
-    const statusDot = document.getElementById("status-dot");
-    const statusText = document.getElementById("status-text");
-    const lastOnlineTime = user.last_online ? new Date(user.last_online) : null;
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    // Initial Status Render
+    updateStatusDisplay(user.last_online);
 
-    if (lastOnlineTime && lastOnlineTime > fiveMinutesAgo) {
-        if (statusDot) statusDot.className = "status-dot dot-online";
-        if (statusText) { 
-            statusText.innerText = "Online"; 
-            statusText.style.color = "#2ecc71"; 
+    // Live auto-refresh status check every 30 seconds
+    if (statusInterval) clearInterval(statusInterval);
+    statusInterval = setInterval(async () => {
+        const { data: freshUser } = await _supabase
+            .from('users')
+            .select('last_online')
+            .eq('username', targetUsername)
+            .single();
+
+        if (freshUser) {
+            updateStatusDisplay(freshUser.last_online);
         }
-    } else {
-        if (statusDot) statusDot.className = "status-dot dot-offline";
-        if (statusText) { 
-            statusText.innerText = "Offline"; 
-            statusText.style.color = "#ff3b30"; 
-        }
-    }
+    }, 30 * 1000);
 
     // Populate Status Text Message Box
     const profileStatusText = document.getElementById("profile-status-text");
@@ -164,7 +172,7 @@ async function loadUserProfile() {
     currentAvatarColors = user.avatar || currentAvatarColors;
     applyAvatarColors("profile-av", currentAvatarColors);
 
-    // Best Friends List
+    // Best Friends List Rendering
     const bestFriendsContainer = document.getElementById("best-friends-container");
     const bestFriends = user.best_friends || [];
     if (bestFriendsContainer) {
@@ -181,7 +189,7 @@ async function loadUserProfile() {
         }
     }
 
-    // Friends List
+    // Friends List Rendering
     const friendsContainer = document.getElementById("friends-container");
     const friends = user.friends || [];
     const friendsTitle = document.getElementById("friends-title");
