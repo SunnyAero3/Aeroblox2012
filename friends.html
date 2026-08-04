@@ -8,11 +8,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .friends-grid { display: flex; gap: 10px; flex-wrap: wrap; }
-        .friend-card { width: 110px; border: 1px solid #ccc; padding: 8px; background: #fafafa; text-align: center; font-size: 11px; border-radius: 3px; }
+        .friend-card { width: 120px; border: 1px solid #ccc; padding: 8px; background: #fafafa; text-align: center; font-size: 11px; border-radius: 3px; }
         .friend-thumb { width: 100%; height: 50px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; border: 1px solid #ddd; }
-        .btn-tab { width: 100%; padding: 8px; text-align: left; background: #f2f2f2; border: 1px solid #ccc; font-weight: bold; cursor: pointer; margin-bottom: 4px; }
+        .btn-tab { width: 100%; padding: 8px; text-align: left; background: #f2f2f2; border: 1px solid #ccc; font-weight: bold; cursor: pointer; margin-bottom: 4px; font-size: 11px; }
         .btn-tab.active { background: #004080; color: #fff; border-color: #002b55; }
-        .btn-msg { font-size: 10px; margin-top: 5px; padding: 2px 6px; background: #008000; color: white; border: none; border-radius: 2px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-action { font-size: 10px; margin-top: 4px; padding: 3px 6px; border: none; border-radius: 2px; cursor: pointer; text-decoration: none; display: block; width: 100%; box-sizing: border-box; text-align: center; }
+        .btn-green { background: #008000; color: white; }
+        .btn-blue { background: #004080; color: white; }
+        .btn-gold { background: #d68910; color: white; }
+        .btn-red { background: #cc0000; color: white; }
     </style>
 </head>
 <body>
@@ -54,16 +58,17 @@
         <!-- Main Content -->
         <div style="padding: 15px; display: flex; gap: 15px;">
             <!-- Tab Controls -->
-            <div style="width: 180px; flex-shrink: 0;">
-                <button id="tab-friends" class="btn-tab active" onclick="switchFriendsTab('friends')">Friends</button>
-                <button id="tab-best-friends" class="btn-tab" onclick="switchFriendsTab('best')">Best Friends</button>
+            <div style="width: 200px; flex-shrink: 0;">
+                <button id="tab-friends" class="btn-tab active" onclick="switchFriendsTab('friends')">My Friends (0)</button>
+                <button id="tab-best-friends" class="btn-tab" onclick="switchFriendsTab('best')">My Best Friends (0)</button>
+                <button id="tab-requests" class="btn-tab" onclick="switchFriendsTab('requests')">Friend Requests (0)</button>
             </div>
 
             <!-- Friends Grid Box -->
             <div style="flex-grow: 1;">
                 <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
                     <div class="module-header" id="friends-page-title" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 6px 10px; font-weight: bold;">
-                        My Friends
+                        My Friends (0)
                     </div>
                     <div class="module-content" id="friends-page-container" style="padding: 12px;">
                         <p style="font-size: 11px; color: #666; margin: 0;">Loading list...</p>
