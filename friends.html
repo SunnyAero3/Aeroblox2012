@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AeroBLOX - Friends</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .friends-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .friend-card { width: 110px; border: 1px solid #ccc; padding: 8px; background: #fafafa; text-align: center; font-size: 11px; border-radius: 3px; }
+        .friend-thumb { width: 100%; height: 50px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; border: 1px solid #ddd; }
+        .btn-tab { width: 100%; padding: 8px; text-align: left; background: #f2f2f2; border: 1px solid #ccc; font-weight: bold; cursor: pointer; margin-bottom: 4px; }
+        .btn-tab.active { background: #004080; color: #fff; border-color: #002b55; }
+        .btn-msg { font-size: 10px; margin-top: 5px; padding: 2px 6px; background: #008000; color: white; border: none; border-radius: 2px; cursor: pointer; text-decoration: none; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- Top Header Bar -->
+        <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
+            <div id="user-greeting">
+                <span id="dash-greeting" style="font-weight: bold;">Hi, User</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
+            </div>
+            <div class="currency-display" style="display: flex; gap: 8px; font-weight: bold; font-size: 11px;">
+                <span style="background: #008000; color: #fff; padding: 2px 6px; border-radius: 2px;">R$ <span id="top-robux-count">0</span></span>
+                <span style="background: #d68910; color: #fff; padding: 2px 6px; border-radius: 2px;">T$ <span id="top-tickets-count">0</span></span>
+            </div>
+        </div>
+
+        <!-- Primary Navigation -->
+        <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
+            <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
+            <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
+                <a href="index.html" style="color: #fff; text-decoration: none;">My AeroBLOX</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Games</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Catalog</a> | 
+                <a href="people.html" style="color: #fff; text-decoration: none;">People</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Forum</a>
+            </div>
+        </div>
+
+        <!-- Sub Navigation Bar -->
+        <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
+            <a href="index.html" style="color: #fff; text-decoration: none;">Home</a>
+            <a href="inbox.html" style="color: #fff; text-decoration: none;">Inbox</a>
+            <a href="messages.html" style="color: #fff; text-decoration: none;">Messages</a>
+            <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
+            <a href="friends.html" style="color: #fff; text-decoration: underline;">Friends</a>
+        </div>
+
+        <!-- Main Content -->
+        <div style="padding: 15px; display: flex; gap: 15px;">
+            <!-- Tab Controls -->
+            <div style="width: 180px; flex-shrink: 0;">
+                <button id="tab-friends" class="btn-tab active" onclick="switchFriendsTab('friends')">Friends</button>
+                <button id="tab-best-friends" class="btn-tab" onclick="switchFriendsTab('best')">Best Friends</button>
+            </div>
+
+            <!-- Friends Grid Box -->
+            <div style="flex-grow: 1;">
+                <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" id="friends-page-title" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 6px 10px; font-weight: bold;">
+                        My Friends
+                    </div>
+                    <div class="module-content" id="friends-page-container" style="padding: 12px;">
+                        <p style="font-size: 11px; color: #666; margin: 0;">Loading list...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/friends.js"></script>
+    <script src="js/music.js"></script>
+</body>
+</html>
