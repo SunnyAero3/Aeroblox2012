@@ -11,9 +11,45 @@ let currentAvatarColors = {
     right_leg: "#A2A8A8" 
 };
 
+// Known AeroBLOX site-wide milestone badges
+const AEROBLOX_SITE_BADGES = [
+    "Welcome to AeroBLOX",
+    "Administrator",
+    "Veteran",
+    "1 Year",
+    "2 Years",
+    "3 Years",
+    "Builders Club",
+    "Turbo Builders Club",
+    "Outrageous Builders Club"
+];
+
 async function loadUserProfile() {
     const urlParams = new URLSearchParams(window.location.search);
     const targetUsername = urlParams.get("user") || localStorage.getItem("aeroUser");
+    const loggedInUser = localStorage.getItem("aeroUser");
+
+    // Fetch & Display Logged-In User's Live Currency
+    if (loggedInUser) {
+        const topGreeting = document.getElementById("top-username-display");
+        if (topGreeting) topGreeting.innerText = `Hi, ${loggedInUser}`;
+
+        const { data: activeUser } = await _supabase
+            .from('users')
+            .select('robux, tix')
+            .eq('username', loggedInUser)
+            .single();
+
+        if (activeUser) {
+            const robuxEl = document.getElementById("top-robux-count");
+            const tixEl = document.getElementById("top-tix-count");
+            const currencyBar = document.getElementById("top-currency-bar");
+
+            if (robuxEl) robuxEl.innerText = (activeUser.robux ?? 0).toLocaleString();
+            if (tixEl) tixEl.innerText = (activeUser.tix ?? 0).toLocaleString();
+            if (currencyBar) currencyBar.style.display = "flex";
+        }
+    }
 
     if (!targetUsername) {
         alert("No user specified!");
@@ -42,7 +78,7 @@ async function loadUserProfile() {
     const profilePlaceName = document.getElementById("profile-place-name");
     if (profilePlaceName) profilePlaceName.innerText = `${user.username}'s Place`;
 
-    // 🟢/🔴 Online Status Calculation (Within 5 mins)
+    // Online Status Calculation (Within 5 mins)
     const statusDot = document.getElementById("status-dot");
     const statusText = document.getElementById("status-text");
     const lastOnlineTime = user.last_online ? new Date(user.last_online) : null;
@@ -87,13 +123,10 @@ async function loadUserProfile() {
     }
 
     // Profile Interactive Action Buttons Setup
-    const loggedInUser = localStorage.getItem("aeroUser");
     const actionsBox = document.getElementById("profile-actions-box");
-    
     if (loggedInUser && loggedInUser.toLowerCase() !== targetUsername.toLowerCase()) {
         if (actionsBox) actionsBox.style.display = "block";
         
-        // Check relationships between viewer and profile target
         const { data: loggedInUserData } = await _supabase
             .from('users')
             .select('friends, best_friends')
@@ -131,7 +164,7 @@ async function loadUserProfile() {
     currentAvatarColors = user.avatar || currentAvatarColors;
     applyAvatarColors("profile-av", currentAvatarColors);
 
-    // Best Friends List Rendering
+    // Best Friends List
     const bestFriendsContainer = document.getElementById("best-friends-container");
     const bestFriends = user.best_friends || [];
     if (bestFriendsContainer) {
@@ -148,7 +181,7 @@ async function loadUserProfile() {
         }
     }
 
-    // Friends List Rendering
+    // Friends List
     const friendsContainer = document.getElementById("friends-container");
     const friends = user.friends || [];
     const friendsTitle = document.getElementById("friends-title");
@@ -168,66 +201,99 @@ async function loadUserProfile() {
         }
     }
 
-    // Badges
-    const badgeContainer = document.getElementById("badges-container");
+    // Badge Categorization & Rendering
     const defaultBadge = { name: "Welcome to AeroBLOX", acquired_at: user.created_at || new Date().toISOString() };
-    const badgeList = (user.badges && user.badges.length > 0) ? user.badges : [defaultBadge];
+    const rawBadges = (user.badges && user.badges.length > 0) ? user.badges : [defaultBadge];
 
-    if (badgeContainer) {
-        badgeContainer.innerHTML = badgeList.map(b => {
-            const isObj = typeof b === 'object' && b !== null;
-            const badgeName = isObj ? (b.name || "Badge") : b;
-            const dateAcquired = isObj && b.acquired_at ? new Date(b.acquired_at).toLocaleDateString() : (user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026");
+    const aerobloxBadges = [];
+    const playerBadges = [];
 
-            return `
-                <div class="item-card">
-                    <div class="item-thumb" style="background:#fff8c4; font-weight:bold; color:#b88600; font-size: 16px;">★</div>
-                    <strong style="font-size: 11px; color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;" title="${badgeName}">${badgeName}</strong>
-                    <div style="font-size: 9px; color: #666; margin-top: 4px; border-top: 1px dashed #ccc; padding-top: 3px;">
-                        Got: <strong>${dateAcquired}</strong>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
+    rawBadges.forEach(b => {
+        const isObj = typeof b === 'object' && b !== null;
+        const name = isObj ? (b.name || "Badge") : b;
+        
+        if (AEROBLOX_SITE_BADGES.includes(name)) {
+            aerobloxBadges.push(b);
+        } else {
+            playerBadges.push(b);
+        }
+    });
 
-    // Game Passes
+    renderBadgeList("aeroblox-badges-container", aerobloxBadges, user, "No AeroBLOX badges earned.");
+    renderBadgeList("player-badges-container", playerBadges, user, "No player badges earned yet.");
+
+    // Game Passes Isolation
     const gpContainer = document.getElementById("gamepasses-container");
-    const defaultPass = { name: "Welcome to AeroBLOX", created_at: user.created_at || new Date().toISOString(), updated_at: user.created_at || new Date().toISOString(), acquired_at: user.created_at || new Date().toISOString() };
-    const passList = (user.gamepasses && user.gamepasses.length > 0) ? user.gamepasses : [defaultPass];
+    const passList = (user.gamepasses && user.gamepasses.length > 0) ? user.gamepasses : [];
 
     if (gpContainer) {
-        gpContainer.innerHTML = passList.map(gp => {
-            const isObj = typeof gp === 'object' && gp !== null;
-            const passName = isObj ? (gp.name || "Game Pass") : gp;
-            const dateCreated = isObj && gp.created_at ? new Date(gp.created_at).toLocaleDateString() : "8/2/2026";
-            const dateUpdated = isObj && gp.updated_at ? new Date(gp.updated_at).toLocaleDateString() : "8/2/2026";
-            const dateAcquired = isObj && gp.acquired_at ? new Date(gp.acquired_at).toLocaleDateString() : "8/2/2026";
+        if (passList.length > 0) {
+            gpContainer.innerHTML = passList.map(gp => {
+                const isObj = typeof gp === 'object' && gp !== null;
+                const passName = isObj ? (gp.name || "Game Pass") : gp;
+                const dateCreated = isObj && gp.created_at ? new Date(gp.created_at).toLocaleDateString() : "8/2/2026";
+                const dateUpdated = isObj && gp.updated_at ? new Date(gp.updated_at).toLocaleDateString() : "8/2/2026";
+                const dateAcquired = isObj && gp.acquired_at ? new Date(gp.acquired_at).toLocaleDateString() : "8/2/2026";
 
-            return `
-                <div class="gamepass-card">
-                    <div class="item-thumb" style="background:#e8f4f8; font-weight:bold; color:#003366; height:50px;">PASS</div>
-                    <strong style="font-size:12px; color:#003366; display:block; margin-bottom:4px;">${passName}</strong>
-                    <div style="font-size:10px; color:#555; border-top:1px solid #eee; padding-top:4px; line-height:1.5;">
-                        <div><strong>Created:</strong> ${dateCreated}</div>
-                        <div><strong>Updated:</strong> ${dateUpdated}</div>
-                        <div><strong>Acquired:</strong> ${dateAcquired}</div>
+                return `
+                    <div class="gamepass-card">
+                        <div class="item-thumb" style="background:#e8f4f8; font-weight:bold; color:#003366; height:50px;">PASS</div>
+                        <strong style="font-size:12px; color:#003366; display:block; margin-bottom:4px;">${passName}</strong>
+                        <div style="font-size:10px; color:#555; border-top:1px solid #eee; padding-top:4px; line-height:1.5;">
+                            <div><strong>Created:</strong> ${dateCreated}</div>
+                            <div><strong>Updated:</strong> ${dateUpdated}</div>
+                            <div><strong>Acquired:</strong> ${dateAcquired}</div>
+                        </div>
                     </div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+        } else {
+            gpContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No game passes created or owned.</p>`;
+        }
     }
 
-    // Inventory
+    // Inventory Rendering
     const invContainer = document.getElementById("inventory-container");
-    if (invContainer && user.inventory && user.inventory.length > 0) {
-        invContainer.innerHTML = user.inventory.map(item => `
-            <div class="item-card">
-                <div class="item-thumb">Item</div>
-                <div>${item}</div>
-            </div>
-        `).join('');
+    if (invContainer) {
+        if (user.inventory && user.inventory.length > 0) {
+            invContainer.innerHTML = user.inventory.map(item => `
+                <div class="item-card">
+                    <div class="item-thumb">Item</div>
+                    <div>${item}</div>
+                </div>
+            `).join('');
+        } else {
+            invContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">Inventory is empty.</p>`;
+        }
     }
+}
+
+function renderBadgeList(containerId, list, user, emptyMessage) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (list.length === 0) {
+        container.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">${emptyMessage}</p>`;
+        return;
+    }
+
+    container.innerHTML = list.map(b => {
+        const isObj = typeof b === 'object' && b !== null;
+        const badgeName = isObj ? (b.name || "Badge") : b;
+        const dateAcquired = isObj && b.acquired_at 
+            ? new Date(b.acquired_at).toLocaleDateString() 
+            : (user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026");
+
+        return `
+            <div class="item-card">
+                <div class="item-thumb" style="background:#fff8c4; font-weight:bold; color:#b88600; font-size: 16px;">★</div>
+                <strong style="font-size: 11px; color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;" title="${badgeName}">${badgeName}</strong>
+                <div style="font-size: 9px; color: #666; margin-top: 4px; border-top: 1px dashed #ccc; padding-top: 3px;">
+                    Got: <strong>${dateAcquired}</strong>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 function sendMessage() {
