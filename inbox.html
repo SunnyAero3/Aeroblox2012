@@ -7,68 +7,133 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .inbox-container { display: flex; margin-top: 15px; border: 1px solid #a6a6a6; background: #fff; }
-        .inbox-sidebar { width: 150px; background: #f2f2f2; border-right: 1px solid #ccc; padding: 10px; }
-        .inbox-sidebar a { display: block; padding: 5px; color: #003366; text-decoration: none; font-weight: bold; font-size: 12px; margin-bottom: 5px; }
-        .inbox-sidebar a:hover, .inbox-sidebar a.active { background: #d9e6f2; border-radius: 3px; }
+        .inbox-container { display: flex; margin-top: 15px; border: 1px solid #a6a6a6; background: #fff; min-height: 400px; }
+        .inbox-sidebar { width: 150px; background: #f2f2f2; border-right: 1px solid #ccc; padding: 10px; flex-shrink: 0; }
+        .inbox-sidebar a { display: block; padding: 6px; color: #003366; text-decoration: none; font-weight: bold; font-size: 12px; margin-bottom: 5px; border: 1px solid transparent; }
+        .inbox-sidebar a:hover, .inbox-sidebar a.active { background: #d9e6f2; border: 1px solid #b0c4de; border-radius: 3px; }
         .inbox-content { flex-grow: 1; padding: 15px; }
         .message-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .message-table th { background: linear-gradient(to bottom, #4c5d73, #2d3846); color: white; padding: 6px; text-align: left; }
         .message-table td { padding: 8px; border-bottom: 1px solid #ddd; }
         .message-table tr:hover { background: #f9f9f9; cursor: pointer; }
-        .unread { font-weight: bold; }
+        .unread { font-weight: bold; background-off: #f0f7ff; }
+        
+        .message-view-box { border: 1px solid #ccc; background: #fafafa; padding: 12px; border-radius: 3px; margin-top: 10px; }
+        .message-header-line { border-bottom: 1px dashed #bbb; padding-bottom: 8px; margin-bottom: 12px; font-size: 12px; }
+        .message-body-text { white-space: pre-wrap; font-size: 13px; line-height: 1.5; color: #222; min-height: 120px; }
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <!-- Re-use your existing top-nav and sub-nav here -->
         
-        <div class="top-nav" style="background: linear-gradient(to bottom, #004080, #002b55); color: #fff; text-align: center; padding: 15px 0;">
-            <h1 style="margin: 0; font-size: 28px;">AeroBLOX</h1>
+        <!-- Header Bar with Greeting & Robux / Tix -->
+        <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
+            <div id="user-greeting">
+                <span id="dash-greeting" style="font-weight: bold;">Hi, User</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
+            </div>
+            <div class="currency-display" style="display: flex; gap: 8px; font-weight: bold; font-size: 11px;">
+                <span style="background: #008000; color: #fff; padding: 2px 6px; border-radius: 2px;">R$ <span id="top-robux-count">0</span></span>
+                <span style="background: #d68910; color: #fff; padding: 2px 6px; border-radius: 2px;">T$ <span id="top-tickets-count">0</span></span>
+            </div>
         </div>
-        <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; font-weight: bold;">
-            <a href="index.html" style="color: #fff; text-decoration: none; margin-right: 15px;">Home</a>
+
+        <!-- Centered Primary Navigation -->
+        <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
+            <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
+            <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
+                <a href="index.html" style="color: #fff; text-decoration: none;">My AeroBLOX</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Games</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Catalog</a> | 
+                <a href="people.html" style="color: #fff; text-decoration: none;">People</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Forum</a>
+            </div>
+        </div>
+
+        <!-- Centered Sub Navigation Bar -->
+        <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
+            <a href="index.html" style="color: #fff; text-decoration: none;">Home</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Places</a>
             <a href="inbox.html" style="color: #fff; text-decoration: none;">Inbox</a>
+            <a href="messages.html" style="color: #fff; text-decoration: none;">Messages</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Account</a>
+            <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Friends</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Character</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Stuff</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Money</a>
         </div>
 
         <!-- Inbox Layout -->
         <div class="inbox-container">
+            <!-- Sidebar Navigation -->
             <div class="inbox-sidebar">
-                <a href="#" class="active" onclick="loadMessages('inbox')">Inbox</a>
-                <a href="#" onclick="loadMessages('sent')">Sent</a>
-                <a href="#" style="margin-top: 15px; color: #d68910;" onclick="showCompose()">+ Compose</a>
+                <a href="#" id="tab-inbox" class="active" onclick="switchTab('inbox')">Inbox</a>
+                <a href="#" id="tab-sent" onclick="switchTab('sent')">Sent</a>
+                <a href="#" id="tab-compose" style="margin-top: 15px; color: #d68910;" onclick="showCompose()">+ Compose</a>
             </div>
             
+            <!-- Message List View -->
             <div class="inbox-content" id="inbox-view">
-                <h2 style="margin-top: 0; font-size: 18px; color: #333;" id="inbox-title">My Inbox</h2>
+                <h2 style="margin-top: 0; font-size: 18px; color: #003366;" id="inbox-title">My Inbox</h2>
                 <table class="message-table">
                     <thead>
                         <tr>
-                            <th width="20%">From</th>
+                            <th width="25%" id="col-contact-header">From</th>
                             <th width="50%">Subject</th>
-                            <th width="30%">Date</th>
+                            <th width="25%">Date</th>
                         </tr>
                     </thead>
                     <tbody id="message-list">
-                        <!-- Messages loaded here -->
+                        <tr><td colspan="3" style="text-align: center; color: #666;">Loading messages...</td></tr>
                     </tbody>
                 </table>
             </div>
 
+            <!-- Single Message Detail View (Hidden by default) -->
+            <div class="inbox-content" id="read-view" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <button class="btn-classic" onclick="switchTab(currentTab)">← Back to Messages</button>
+                    <button class="btn-classic" id="reply-btn" style="background: #004080; color: #fff;">Reply</button>
+                </div>
+
+                <div class="message-view-box">
+                    <h2 id="read-subject" style="margin: 0 0 10px 0; font-size: 16px; color: #003366;">Message Subject</h2>
+                    <div class="message-header-line">
+                        <p style="margin: 0 0 4px 0;"><strong>From:</strong> <span id="read-sender">Username</span></p>
+                        <p style="margin: 0 0 4px 0;"><strong>To:</strong> <span id="read-receiver">Username</span></p>
+                        <p style="margin: 0;"><strong>Date:</strong> <span id="read-date">1/1/2026</span></p>
+                    </div>
+                    <div class="message-body-text" id="read-body">
+                        Message contents will be displayed here...
+                    </div>
+                </div>
+            </div>
+
             <!-- Compose View (Hidden by default) -->
             <div class="inbox-content" id="compose-view" style="display: none;">
-                <h2 style="margin-top: 0; font-size: 18px;">Send a Message</h2>
-                <input type="text" id="msg-to" placeholder="Recipient Username" style="width: 100%; padding: 6px; margin-bottom: 10px;">
-                <input type="text" id="msg-subject" placeholder="Subject" style="width: 100%; padding: 6px; margin-bottom: 10px;">
-                <textarea id="msg-body" placeholder="Write your message here..." style="width: 100%; height: 150px; padding: 6px; margin-bottom: 10px; resize: none;"></textarea>
+                <h2 style="margin-top: 0; font-size: 18px; color: #003366;">Send a Message</h2>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px;">To:</label>
+                    <input type="text" id="msg-to" placeholder="Recipient Username" style="width: 100%; padding: 6px; border: 1px solid #999; border-radius: 2px;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px;">Subject:</label>
+                    <input type="text" id="msg-subject" placeholder="Subject" style="width: 100%; padding: 6px; border: 1px solid #999; border-radius: 2px;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px;">Message:</label>
+                    <textarea id="msg-body" placeholder="Write your message here..." style="width: 100%; height: 160px; padding: 6px; border: 1px solid #999; border-radius: 2px; resize: none; font-family: inherit;"></textarea>
+                </div>
                 <button class="btn-classic" onclick="sendMessage()">Send Message</button>
-                <button class="btn-classic" onclick="loadMessages('inbox')" style="background: #eee; color: #333;">Cancel</button>
+                <button class="btn-classic" onclick="switchTab('inbox')" style="background: #eee; color: #333; margin-left: 5px;">Cancel</button>
             </div>
 
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="js/auth.js"></script>
     <script src="js/inbox.js"></script>
 </body>
