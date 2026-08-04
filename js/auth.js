@@ -27,6 +27,57 @@ async function sendOnlineHeartbeat() {
     }
 }
 
+/**
+ * Checks session and updates top bar header elements (Username, Robux, Tix)
+ */
+async function checkAuth() {
+    const loggedInUser = localStorage.getItem("aeroUser");
+    const isLoginPage = window.location.pathname.endsWith("login.html");
+
+    if (!loggedInUser && !isLoginPage) {
+        window.location.href = "login.html";
+        return;
+    } else if (loggedInUser && isLoginPage) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    if (!loggedInUser) return;
+
+    // 1. Update Username Greeting across all variations of element IDs
+    const dashGreeting = document.getElementById("dash-greeting");
+    const topUsernameDisplay = document.getElementById("top-username-display");
+    const homeUsername = document.getElementById("home-username");
+
+    if (dashGreeting) dashGreeting.innerText = `Hi, ${loggedInUser}`;
+    if (topUsernameDisplay) topUsernameDisplay.innerText = `Hi, ${loggedInUser}`;
+    if (homeUsername) homeUsername.innerText = `Hi, ${loggedInUser}`;
+
+    // 2. Fetch Robux & Tickets/Tix from Supabase
+    if (typeof _supabase !== 'undefined') {
+        try {
+            const { data: userData, error } = await _supabase
+                .from('users')
+                .select('robux, tickets, tix')
+                .eq('username', loggedInUser)
+                .single();
+
+            if (userData && !error) {
+                const robuxEl = document.getElementById("top-robux-count");
+                const tixEl = document.getElementById("top-tickets-count");
+
+                const robuxVal = userData.robux ?? 0;
+                const tixVal = userData.tickets ?? userData.tix ?? 0;
+
+                if (robuxEl) robuxEl.innerText = robuxVal;
+                if (tixEl) tixEl.innerText = tixVal;
+            }
+        } catch (err) {
+            console.error("Error fetching user currency:", err);
+        }
+    }
+}
+
 // 1. LOGIN HANDLER
 async function handleAuth(event) {
     if (event) event.preventDefault();
@@ -93,10 +144,12 @@ async function handleRegister() {
 
         const now = new Date().toISOString();
 
-        // Create new account entry in Supabase with Welcome Badge pre-assigned
+        // Create new account entry in Supabase
         const newUser = {
             username: usernameInput,
             password: passwordInput,
+            robux: 0,
+            tickets: 0,
             created_at: now,
             last_online: now,
             status: "Hello AeroBLOX!",
@@ -148,28 +201,14 @@ function showAuthError(msg) {
 window.handleAuth = handleAuth;
 window.handleRegister = handleRegister;
 window.logoutUser = logoutUser;
+window.checkAuth = checkAuth;
+window.updateTopBar = checkAuth;
 
 // Check Session Guard on Page Load
 document.addEventListener("DOMContentLoaded", () => {
+    checkAuth();
+
     const loggedInUser = localStorage.getItem("aeroUser");
-    const isLoginPage = window.location.pathname.endsWith("login.html");
-
-    if (!loggedInUser && !isLoginPage) {
-        window.location.href = "login.html";
-    } else if (loggedInUser && isLoginPage) {
-        window.location.href = "index.html";
-    }
-
-    const topUsernameDisplay = document.getElementById("top-username-display");
-    if (topUsernameDisplay && loggedInUser) {
-        topUsernameDisplay.innerText = `Hi, ${loggedInUser}`;
-    }
-
-    const homeUsername = document.getElementById("home-username");
-    if (homeUsername && loggedInUser) {
-        homeUsername.innerText = `Hi, ${loggedInUser}`;
-    }
-
     if (loggedInUser) {
         sendOnlineHeartbeat();
         setInterval(sendOnlineHeartbeat, 2 * 60 * 1000);
