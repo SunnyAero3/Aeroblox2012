@@ -185,10 +185,14 @@ function renderHomeFriends(user) {
     const bestFriends = user.best_friends || [];
     const friends = user.friends || [];
 
+    // Limit display to max 5 items
+    const displayBestFriends = bestFriends.slice(0, 5);
+    const displayFriends = friends.slice(0, 5);
+
     const bfContainer = document.getElementById("dash-best-friends-container");
     if (bfContainer) {
-        if (bestFriends.length > 0) {
-            bfContainer.innerHTML = bestFriends.map(bf => `
+        if (displayBestFriends.length > 0) {
+            bfContainer.innerHTML = displayBestFriends.map(bf => `
                 <a href="profile.html?user=${encodeURIComponent(bf)}" style="text-decoration:none; color:inherit;">
                     <div style="border:1px solid #e9a838; background:#fffdf5; padding:4px 8px; font-size:11px; font-weight:bold; border-radius:3px; color:#b88600; margin-bottom:4px;">
                         ★ ${bf}
@@ -201,12 +205,15 @@ function renderHomeFriends(user) {
     }
 
     const fTitle = document.getElementById("dash-friends-title");
-    if (fTitle) fTitle.innerText = `Friends (${friends.length})`;
+    if (fTitle) {
+        const titleSpan = fTitle.querySelector("span") || fTitle;
+        titleSpan.innerText = `Friends (${friends.length})`;
+    }
 
     const fContainer = document.getElementById("dash-friends-container");
     if (fContainer) {
-        if (friends.length > 0) {
-            fContainer.innerHTML = friends.map(f => `
+        if (displayFriends.length > 0) {
+            fContainer.innerHTML = displayFriends.map(f => `
                 <a href="profile.html?user=${encodeURIComponent(f)}" style="text-decoration:none; color:inherit;">
                     <div style="border:1px solid #ccc; background:#f9f9f9; padding:4px 8px; font-size:11px; border-radius:3px; margin-bottom:4px;">
                         👤 ${f}
