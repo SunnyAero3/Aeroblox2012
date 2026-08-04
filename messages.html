@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AeroBLOX - Direct Messages</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .msg-box { border: 1px solid #a6a6a6; background: #fff; margin-bottom: 15px; }
+        .msg-header { background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 6px 10px; font-weight: bold; font-size: 12px; }
+        .msg-item { border-bottom: 1px solid #eee; padding: 8px 10px; font-size: 11px; }
+        .msg-item:last-child { border-bottom: none; }
+        .msg-sender { font-weight: bold; color: #003366; }
+        .msg-date { font-size: 9px; color: #888; float: right; }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- Top Bar -->
+        <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
+            <div id="user-greeting">
+                <span id="dash-greeting" style="font-weight: bold;">Hi, User</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
+            </div>
+            <div class="currency-display" style="display: flex; gap: 8px; font-weight: bold; font-size: 11px;">
+                <span style="background: #008000; color: #fff; padding: 2px 6px; border-radius: 2px;">R$ <span id="top-robux-count">0</span></span>
+                <span style="background: #d68910; color: #fff; padding: 2px 6px; border-radius: 2px;">T$ <span id="top-tickets-count">0</span></span>
+            </div>
+        </div>
+
+        <!-- Primary Nav -->
+        <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
+            <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
+            <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
+                <a href="index.html" style="color: #fff; text-decoration: none;">My AeroBLOX</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Games</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Catalog</a> | 
+                <a href="people.html" style="color: #fff; text-decoration: none;">People</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Forum</a>
+            </div>
+        </div>
+
+        <!-- Sub Nav -->
+        <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
+            <a href="index.html" style="color: #fff; text-decoration: none;">Home</a>
+            <a href="inbox.html" style="color: #fff; text-decoration: none;">Inbox</a>
+            <a href="messages.html" style="color: #fff; text-decoration: underline;">Messages</a>
+            <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
+            <a href="friends.html" style="color: #fff; text-decoration: none;">Friends</a>
+        </div>
+
+        <!-- Messaging Grid Layout -->
+        <div style="padding: 15px; display: flex; gap: 15px;">
+            
+            <!-- Message Composition Box -->
+            <div style="width: 320px; flex-shrink: 0;">
+                <div class="msg-box">
+                    <div class="msg-header">Send Friend Message</div>
+                    <div style="padding: 12px; font-size: 11px;">
+                        <form id="send-msg-form" onsubmit="handleSendMessage(event)">
+                            <div style="margin-bottom: 8px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 3px;">Send To (Friend Only):</label>
+                                <select id="msg-recipient-select" style="width: 100%; padding: 4px; border: 1px solid #999;">
+                                    <option value="">Loading friends...</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-bottom: 8px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 3px;">Subject:</label>
+                                <input type="text" id="msg-subject" placeholder="Subject" style="width: 100%; padding: 4px; border: 1px solid #999; box-sizing: border-box;" required>
+                            </div>
+
+                            <div style="margin-bottom: 8px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 3px;">Message:</label>
+                                <textarea id="msg-body" rows="5" placeholder="Write your message here..." style="width: 100%; padding: 4px; border: 1px solid #999; box-sizing: border-box;" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-classic" style="width: 100%; padding: 6px; background: #008000; color: #fff; font-weight: bold; border: none; cursor: pointer;">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Stream -->
+            <div style="flex-grow: 1;">
+                <div class="msg-box">
+                    <div class="msg-header">Direct Messages</div>
+                    <div id="messages-list-container" style="padding: 10px;">
+                        <p style="font-size: 11px; color: #666; margin: 0;">Loading messages...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/messages.js"></script>
+    <script src="js/music.js"></script>
+</body>
+</html>
