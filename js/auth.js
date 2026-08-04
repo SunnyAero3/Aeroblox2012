@@ -10,6 +10,23 @@ if (typeof _supabase === 'undefined' && typeof supabase !== 'undefined') {
     window._supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
+/**
+ * Updates the user's last_online timestamp in Supabase every interval
+ */
+async function sendOnlineHeartbeat() {
+    const loggedInUser = localStorage.getItem("aeroUser");
+    if (!loggedInUser || typeof _supabase === 'undefined') return;
+
+    try {
+        await _supabase
+            .from('users')
+            .update({ last_online: new Date().toISOString() })
+            .eq('username', loggedInUser);
+    } catch (err) {
+        console.error("Failed to update online status heartbeat:", err);
+    }
+}
+
 // 1. LOGIN HANDLER
 async function handleAuth(event) {
     if (event) event.preventDefault();
@@ -156,5 +173,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const homeUsername = document.getElementById("home-username");
     if (homeUsername && loggedInUser) {
         homeUsername.innerText = `Hi, ${loggedInUser}`;
+    }
+
+    // Heartbeat: update online timestamp immediately & every 2 minutes
+    if (loggedInUser) {
+        sendOnlineHeartbeat();
+        setInterval(sendOnlineHeartbeat, 2 * 60 * 1000);
     }
 });
