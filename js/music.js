@@ -2,7 +2,7 @@
 const audioPath = 'audio/DJ Glejs - Better Off Alone (Remix).mp3'; 
 const bgMusic = new Audio(encodeURI(audioPath));
 bgMusic.loop = true;
-bgMusic.volume = 0.25; // Set volume to 25%
+bgMusic.volume = 0.3; // Set volume to 30%
 
 document.addEventListener('click', (event) => {
   const isInteractive = event.target.closest('a, button, input, select, textarea');
