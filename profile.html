@@ -29,6 +29,20 @@
             gap: 6px;
         }
 
+        /* Currency Counter Styling */
+        .currency-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
         /* Online / Offline Status Dot (Bright Red Offline Dot) */
         .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
         .dot-online { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
@@ -81,8 +95,19 @@
         <!-- Header Bar -->
         <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
             <div id="user-greeting">
-                <span id="top-username-display" style="font-weight: bold;">Hi, User</span>
+                <span id="top-username-display" style="font-weight: bold;">Hi, Guest</span>
                 <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
+            </div>
+            <!-- Top Right Currency Bar -->
+            <div id="top-currency-bar" class="currency-display" style="display: none;">
+                <div class="currency-item" title="Robux">
+                    <span style="color: #008000;">R$:</span>
+                    <span id="top-robux-count">0</span>
+                </div>
+                <div class="currency-item" title="Tickets">
+                    <span style="color: #d67d00;">Tix:</span>
+                    <span id="top-tix-count">0</span>
+                </div>
             </div>
         </div>
 
@@ -169,7 +194,7 @@
             <!-- Right Column -->
             <div class="right-col" style="flex-grow: 1;">
                 
-                <!-- User Personal Status Box (Moved to Top Right) -->
+                <!-- User Personal Status Box -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">Status</div>
                     <div class="module-content" style="background: #fff; padding: 10px; font-size: 11px; color: #333;">
@@ -189,11 +214,23 @@
                     </div>
                 </div>
 
-                <!-- Badges -->
+                <!-- AeroBLOX Badges -->
                 <div class="module-box" style="margin-bottom: 15px;">
-                    <div class="module-header">Badges</div>
+                    <div class="module-header">AeroBLOX Badges</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
-                        <div id="badges-container" class="badge-grid"></div>
+                        <div id="aeroblox-badges-container" class="badge-grid">
+                            <p style="font-size: 11px; color: #666; margin: 0;">No AeroBLOX badges earned.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Player Badges -->
+                <div class="module-box" style="margin-bottom: 15px;">
+                    <div class="module-header">Player Badges</div>
+                    <div class="module-content" style="background: #fff; padding: 10px;">
+                        <div id="player-badges-container" class="badge-grid">
+                            <p style="font-size: 11px; color: #666; margin: 0;">No player badges earned yet.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -202,7 +239,7 @@
                     <div class="module-header">Game Passes</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
                         <div id="gamepasses-container" class="gamepass-grid">
-                            <p style="font-size: 11px; color: #666; margin: 0;">Loading game passes...</p>
+                            <p style="font-size: 11px; color: #666; margin: 0;">No game passes created or owned.</p>
                         </div>
                     </div>
                 </div>
