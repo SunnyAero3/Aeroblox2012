@@ -58,7 +58,7 @@ async function loadFriendsData() {
     }
 }
 
-// Render Dashboard Preview Cards
+// Render Dashboard Preview Cards (Max 5)
 function renderFriendsPreview(friendArray, containerId, headerText, titleId) {
     const container = document.getElementById(containerId);
     if (titleId && document.getElementById(titleId)) {
@@ -74,7 +74,7 @@ function renderFriendsPreview(friendArray, containerId, headerText, titleId) {
     }
 
     let html = '<div class="friends-grid">';
-    friendArray.slice(0, 6).forEach(friend => {
+    friendArray.slice(0, 5).forEach(friend => {
         html += `
             <div class="item-card">
                 <div class="item-thumb" style="height: 45px;">
@@ -323,7 +323,6 @@ async function removeFriend(targetUsername) {
     }
 
     try {
-        // 1. Remove target from current user's friends and best_friends
         let updatedFriends = cachedFriends.filter(name => name !== targetUsername);
         let updatedBest = cachedBestFriends.filter(name => name !== targetUsername);
 
@@ -334,7 +333,6 @@ async function removeFriend(targetUsername) {
 
         if (selfErr) throw selfErr;
 
-        // 2. Remove current user from target user's friends and best_friends
         const { data: targetData } = await _supabase
             .from('users')
             .select('friends, best_friends')
