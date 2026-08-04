@@ -2,7 +2,6 @@
  * js/home.js - Dashboard / Home Page Logic for AeroBLOX
  */
 
-// Known AeroBLOX site-wide milestone badges
 const AEROBLOX_SITE_BADGES = [
     "Welcome to AeroBLOX",
     "Administrator",
@@ -17,9 +16,6 @@ const AEROBLOX_SITE_BADGES = [
 
 let currentUserData = null;
 
-/**
- * Main Initialization on Home Page Load
- */
 async function loadHomeDashboard() {
     const loggedInUser = localStorage.getItem("aeroUser");
     if (!loggedInUser) {
@@ -28,7 +24,6 @@ async function loadHomeDashboard() {
     }
 
     try {
-        // Fetch full profile from Supabase
         const { data: user, error } = await _supabase
             .from('users')
             .select('*')
@@ -42,14 +37,12 @@ async function loadHomeDashboard() {
 
         currentUserData = user;
 
-        // Update Greetings & Top Header
         const dashGreeting = document.getElementById("dash-greeting");
         if (dashGreeting) dashGreeting.innerText = `Hi, ${user.username}`;
 
         const homeUsername = document.getElementById("home-username");
         if (homeUsername) homeUsername.innerText = `Hi, ${user.username}`;
 
-        // Currency
         const topRobux = document.getElementById("top-robux-count");
         const dashRobux = document.getElementById("dash-robux-count");
         if (topRobux) topRobux.innerText = user.robux ?? 0;
@@ -60,7 +53,6 @@ async function loadHomeDashboard() {
         if (topTickets) topTickets.innerText = user.tickets ?? 0;
         if (dashTickets) dashTickets.innerText = user.tickets ?? 0;
 
-        // Status / Feed
         const feedDisplay = document.getElementById("feed-display");
         const statusInput = document.getElementById("status-input");
         if (user.status && user.status.trim() !== "") {
@@ -70,7 +62,6 @@ async function loadHomeDashboard() {
             if (feedDisplay) feedDisplay.innerText = '"No status set"';
         }
 
-        // Account Details
         const joinDateEl = document.getElementById("dash-join-date");
         if (joinDateEl) {
             joinDateEl.innerText = user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026";
@@ -81,19 +72,16 @@ async function loadHomeDashboard() {
             lastOnlineEl.innerText = user.last_online ? new Date(user.last_online).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now";
         }
 
-        // Place Visits
         const placeVisitsEl = document.getElementById("dash-place-visits");
         if (placeVisitsEl) {
             placeVisitsEl.innerText = user.place_visits ?? 0;
         }
 
-        // Render Friends Lists
         renderHomeFriends(user);
 
-        // Render Badges Split (AeroBLOX vs Player)
+        // Render Badges Split with Guaranteed Welcome Badge
         renderHomeBadges(user.badges || [], user.created_at);
 
-        // Render Game Passes
         renderHomeGamePasses(user.gamepasses || []);
 
     } catch (err) {
@@ -102,14 +90,27 @@ async function loadHomeDashboard() {
 }
 
 /**
- * Dynamic Badge Categorization & Rendering
+ * Ensures "Welcome to AeroBLOX" is always present and renders the lists
  */
 function renderHomeBadges(rawBadges, createdAt) {
     const aeroContainer = document.getElementById("dash-aeroblox-badges-container");
     const playerContainer = document.getElementById("dash-player-badges-container");
 
-    const defaultBadge = { name: "Welcome to AeroBLOX", acquired_at: createdAt || new Date().toISOString() };
-    const badgeList = rawBadges.length > 0 ? rawBadges : [defaultBadge];
+    const badgeList = [...rawBadges];
+
+    // Check if Welcome badge is present
+    const hasWelcome = badgeList.some(b => {
+        const name = (typeof b === 'object' && b !== null) ? b.name : b;
+        return name === "Welcome to AeroBLOX";
+    });
+
+    // If missing, auto-grant in UI
+    if (!hasWelcome) {
+        badgeList.unshift({
+            name: "Welcome to AeroBLOX",
+            acquired_at: createdAt || new Date().toISOString()
+        });
+    }
 
     const aerobloxBadges = [];
     const playerBadges = [];
@@ -125,7 +126,6 @@ function renderHomeBadges(rawBadges, createdAt) {
         }
     });
 
-    // Render AeroBLOX Badges
     if (aeroContainer) {
         if (aerobloxBadges.length === 0) {
             aeroContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No AeroBLOX badges earned.</p>`;
@@ -134,7 +134,6 @@ function renderHomeBadges(rawBadges, createdAt) {
         }
     }
 
-    // Render Player Badges
     if (playerContainer) {
         if (playerBadges.length === 0) {
             playerContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No player badges earned yet.</p>`;
@@ -162,9 +161,6 @@ function buildBadgeCardHtml(badge, bgColor, textColor, icon, defaultDate) {
     `;
 }
 
-/**
- * Game Passes Rendering
- */
 function renderHomeGamePasses(passList) {
     const gpContainer = document.getElementById("dash-gamepasses-container");
     if (!gpContainer) return;
@@ -185,9 +181,6 @@ function renderHomeGamePasses(passList) {
     }
 }
 
-/**
- * Friends & Best Friends List Rendering
- */
 function renderHomeFriends(user) {
     const bestFriends = user.best_friends || [];
     const friends = user.friends || [];
@@ -226,9 +219,6 @@ function renderHomeFriends(user) {
     }
 }
 
-/**
- * Update User Status & Feed
- */
 async function updateStatus() {
     const statusInput = document.getElementById("status-input");
     if (!statusInput) return;
@@ -258,8 +248,5 @@ async function updateStatus() {
     }
 }
 
-// Global scope attachment
 window.updateStatus = updateStatus;
-
-// Run load on DOM ready
 document.addEventListener("DOMContentLoaded", loadHomeDashboard);
