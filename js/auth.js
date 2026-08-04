@@ -28,7 +28,7 @@ async function sendOnlineHeartbeat() {
 }
 
 /**
- * Checks session and updates top bar header elements (Username, Robux, Tix)
+ * Checks session and updates top bar header elements (Username, Robux, Tickets)
  */
 async function checkAuth() {
     const loggedInUser = localStorage.getItem("aeroUser");
@@ -53,7 +53,7 @@ async function checkAuth() {
     if (topUsernameDisplay) topUsernameDisplay.innerText = `Hi, ${loggedInUser}`;
     if (homeUsername) homeUsername.innerText = `Hi, ${loggedInUser}`;
 
-    // 2. Fetch Robux & Tickets/Tix from Supabase
+    // 2. Fetch Robux & Tickets from Supabase
     if (typeof _supabase !== 'undefined') {
         try {
             const { data: userData, error } = await _supabase
@@ -63,7 +63,7 @@ async function checkAuth() {
                 .maybeSingle();
 
             if (error) {
-                console.error("Supabase error loading currency:", error);
+                console.error("Supabase error loading user data:", error);
                 return;
             }
 
@@ -71,12 +71,12 @@ async function checkAuth() {
                 const robuxEl = document.getElementById("top-robux-count");
                 const tixEl = document.getElementById("top-tickets-count");
 
-                // Account for variations in database column casing/naming
-                const robuxVal = userData.robux ?? userData.Robux ?? 10;
-                const tixVal = userData.tickets ?? userData.tix ?? userData.Tickets ?? userData.Tix ?? 100;
+                // Strictly use the database column names 'robux' and 'tickets'
+                const robuxVal = userData.robux ?? 10;
+                const ticketsVal = userData.tickets ?? 100;
 
                 if (robuxEl) robuxEl.innerText = robuxVal;
-                if (tixEl) tixEl.innerText = tixVal;
+                if (tixEl) tixEl.innerText = ticketsVal;
             }
         } catch (err) {
             console.error("Error fetching user currency:", err);
@@ -150,17 +150,23 @@ async function handleRegister() {
 
         const now = new Date().toISOString();
 
-        // Register new account with default 10 Robux & 100 Tix
+        // Standardized new account object strictly using 'tickets'
         const newUser = {
             username: usernameInput,
             password: passwordInput,
             robux: 10,
-            tickets: 100,
-            tix: 100,
+            tickets: 100, // Matching the Supabase column directly
             created_at: now,
             last_online: now,
             status: "Hello AeroBLOX!",
-            place_visits: 0
+            place_visits: 0,
+            friends: [],
+            best_friends: [],
+            badges: [
+                { name: "Welcome to AeroBLOX", acquired_at: now }
+            ],
+            gamepasses: [],
+            inventory: []
         };
 
         const { error: insertError } = await _supabase
