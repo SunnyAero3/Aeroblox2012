@@ -1,79 +1,201 @@
-let currentAvatarColors = { head: "#F5CD2F", torso: "#0D69AC", left_arm: "#F5CD2F", right_arm: "#F5CD2F", left_leg: "#A2A8A8", right_leg: "#A2A8A8" };
+/**
+ * js/home.js - Dashboard / Home Page Logic for AeroBLOX
+ */
 
-async function loadDashboard() {
-    const username = localStorage.getItem("aeroUser");
+// Known AeroBLOX site-wide milestone badges
+const AEROBLOX_SITE_BADGES = [
+    "Welcome to AeroBLOX",
+    "Administrator",
+    "Veteran",
+    "1 Year",
+    "2 Years",
+    "3 Years",
+    "Builders Club",
+    "Turbo Builders Club",
+    "Outrageous Builders Club"
+];
 
-    if (!username) {
+let currentUserData = null;
+
+/**
+ * Main Initialization on Home Page Load
+ */
+async function loadHomeDashboard() {
+    const loggedInUser = localStorage.getItem("aeroUser");
+    if (!loggedInUser) {
         window.location.href = "login.html";
         return;
     }
 
-    const { data: user, error } = await _supabase
-        .from('users')
-        .select('*')
-        .eq('username', username)
-        .single();
+    try {
+        // Fetch full profile from Supabase
+        const { data: user, error } = await _supabase
+            .from('users')
+            .select('*')
+            .eq('username', loggedInUser)
+            .single();
 
-    if (error || !user) {
-        console.error("Failed to fetch user data:", error);
-        return;
+        if (error || !user) {
+            console.error("Failed to load user data:", error);
+            return;
+        }
+
+        currentUserData = user;
+
+        // Update Greetings & Top Header
+        const dashGreeting = document.getElementById("dash-greeting");
+        if (dashGreeting) dashGreeting.innerText = `Hi, ${user.username}`;
+
+        const homeUsername = document.getElementById("home-username");
+        if (homeUsername) homeUsername.innerText = `Hi, ${user.username}`;
+
+        // Currency
+        const topRobux = document.getElementById("top-robux-count");
+        const dashRobux = document.getElementById("dash-robux-count");
+        if (topRobux) topRobux.innerText = user.robux ?? 0;
+        if (dashRobux) dashRobux.innerText = user.robux ?? 0;
+
+        const topTickets = document.getElementById("top-tickets-count");
+        const dashTickets = document.getElementById("dash-tickets-count");
+        if (topTickets) topTickets.innerText = user.tickets ?? 0;
+        if (dashTickets) dashTickets.innerText = user.tickets ?? 0;
+
+        // Status / Feed
+        const feedDisplay = document.getElementById("feed-display");
+        const statusInput = document.getElementById("status-input");
+        if (user.status && user.status.trim() !== "") {
+            if (feedDisplay) feedDisplay.innerText = `"${user.status}"`;
+            if (statusInput) statusInput.value = user.status;
+        } else {
+            if (feedDisplay) feedDisplay.innerText = '"No status set"';
+        }
+
+        // Account Details
+        const joinDateEl = document.getElementById("dash-join-date");
+        if (joinDateEl) {
+            joinDateEl.innerText = user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026";
+        }
+
+        const lastOnlineEl = document.getElementById("dash-last-online");
+        if (lastOnlineEl) {
+            lastOnlineEl.innerText = user.last_online ? new Date(user.last_online).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now";
+        }
+
+        // Place Visits
+        const placeVisitsEl = document.getElementById("dash-place-visits");
+        if (placeVisitsEl) {
+            placeVisitsEl.innerText = user.place_visits ?? 0;
+        }
+
+        // Render Friends Lists
+        renderHomeFriends(user);
+
+        // Render Badges Split (AeroBLOX vs Player)
+        renderHomeBadges(user.badges || [], user.created_at);
+
+        // Render Game Passes
+        renderHomeGamePasses(user.gamepasses || []);
+
+    } catch (err) {
+        console.error("Home dashboard load error:", err);
+    }
+}
+
+/**
+ * Dynamic Badge Categorization & Rendering
+ */
+function renderHomeBadges(rawBadges, createdAt) {
+    const aeroContainer = document.getElementById("dash-aeroblox-badges-container");
+    const playerContainer = document.getElementById("dash-player-badges-container");
+
+    const defaultBadge = { name: "Welcome to AeroBLOX", acquired_at: createdAt || new Date().toISOString() };
+    const badgeList = rawBadges.length > 0 ? rawBadges : [defaultBadge];
+
+    const aerobloxBadges = [];
+    const playerBadges = [];
+
+    badgeList.forEach(b => {
+        const isObj = typeof b === 'object' && b !== null;
+        const name = isObj ? (b.name || "Badge") : b;
+        
+        if (AEROBLOX_SITE_BADGES.includes(name)) {
+            aerobloxBadges.push(b);
+        } else {
+            playerBadges.push(b);
+        }
+    });
+
+    // Render AeroBLOX Badges
+    if (aeroContainer) {
+        if (aerobloxBadges.length === 0) {
+            aeroContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No AeroBLOX badges earned.</p>`;
+        } else {
+            aeroContainer.innerHTML = aerobloxBadges.map(b => buildBadgeCardHtml(b, "#fff8c4", "#b88600", "★", createdAt)).join('');
+        }
     }
 
-    // Header & Dashboard Greetings
-    const greetingElem = document.getElementById("dash-greeting");
-    if (greetingElem) greetingElem.innerText = `Hi, ${user.username}`;
-    
-    const homeUserElem = document.getElementById("home-username");
-    if (homeUserElem) homeUserElem.innerText = `Hi, ${user.username}`;
-
-    // Dynamic Currency Counts (Header & Balance Box)
-    const robuxVal = user.robux !== undefined && user.robux !== null ? user.robux : 0;
-    const ticketsVal = user.tickets !== undefined && user.tickets !== null ? user.tickets : 0;
-
-    const dashRobux = document.getElementById("dash-robux-count");
-    if (dashRobux) dashRobux.innerText = robuxVal;
-
-    const dashTickets = document.getElementById("dash-tickets-count");
-    if (dashTickets) dashTickets.innerText = ticketsVal;
-
-    const topRobux = document.getElementById("top-robux-count");
-    if (topRobux) topRobux.innerText = robuxVal;
-
-    const topTickets = document.getElementById("top-tickets-count");
-    if (topTickets) topTickets.innerText = ticketsVal;
-
-    // Dates & Account Details
-    const joinDateElem = document.getElementById("dash-join-date");
-    if (joinDateElem) {
-        joinDateElem.innerText = user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026";
+    // Render Player Badges
+    if (playerContainer) {
+        if (playerBadges.length === 0) {
+            playerContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No player badges earned yet.</p>`;
+        } else {
+            playerContainer.innerHTML = playerBadges.map(b => buildBadgeCardHtml(b, "#e1f5fe", "#0288d1", "🏆", createdAt)).join('');
+        }
     }
+}
 
-    const lastOnlineElem = document.getElementById("dash-last-online");
-    if (lastOnlineElem) {
-        lastOnlineElem.innerText = user.last_online ? new Date(user.last_online).toLocaleString() : "Just now";
+function buildBadgeCardHtml(badge, bgColor, textColor, icon, defaultDate) {
+    const isObj = typeof badge === 'object' && badge !== null;
+    const badgeName = isObj ? (badge.name || "Badge") : badge;
+    const dateAcquired = isObj && badge.acquired_at 
+        ? new Date(badge.acquired_at).toLocaleDateString() 
+        : (defaultDate ? new Date(defaultDate).toLocaleDateString() : "8/2/2026");
+
+    return `
+        <div class="item-card">
+            <div class="item-thumb" style="background:${bgColor}; font-weight:bold; color:${textColor}; font-size:16px;">${icon}</div>
+            <strong style="font-size: 10px; color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;" title="${badgeName}">${badgeName}</strong>
+            <div style="font-size: 9px; color: #666; margin-top: 4px; border-top: 1px dashed #ccc; padding-top: 3px;">
+                Got: <strong>${dateAcquired}</strong>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Game Passes Rendering
+ */
+function renderHomeGamePasses(passList) {
+    const gpContainer = document.getElementById("dash-gamepasses-container");
+    if (!gpContainer) return;
+
+    if (passList.length > 0) {
+        gpContainer.innerHTML = passList.map(gp => {
+            const isObj = typeof gp === 'object' && gp !== null;
+            const passName = isObj ? (gp.name || "Game Pass") : gp;
+            return `
+                <div class="item-card" style="width: 100px;">
+                    <div class="item-thumb" style="background:#e8f4f8; font-weight:bold; color:#003366;">PASS</div>
+                    <strong style="font-size:10px; color:#003366; display:block; margin-top:2px;">${passName}</strong>
+                </div>
+            `;
+        }).join('');
+    } else {
+        gpContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No game passes found.</p>`;
     }
+}
 
-    // My Feed Status Display Fix
-    const feedDisplay = document.getElementById("feed-display");
-    if (feedDisplay) {
-        feedDisplay.innerText = (user.status && user.status.trim() !== "") ? `"${user.status}"` : `"No status set"`;
-    }
-
-    const visitsElem = document.getElementById("dash-place-visits");
-    if (visitsElem) {
-        visitsElem.innerText = user.place_visits ?? 0;
-    }
-
-    // Apply Avatar Colors
-    currentAvatarColors = user.avatar || currentAvatarColors;
-    applyAvatarColors("dash-av", currentAvatarColors);
-
-    // Best Friends List
-    const bestFriendsContainer = document.getElementById("dash-best-friends-container");
+/**
+ * Friends & Best Friends List Rendering
+ */
+function renderHomeFriends(user) {
     const bestFriends = user.best_friends || [];
-    if (bestFriendsContainer) {
+    const friends = user.friends || [];
+
+    const bfContainer = document.getElementById("dash-best-friends-container");
+    if (bfContainer) {
         if (bestFriends.length > 0) {
-            bestFriendsContainer.innerHTML = bestFriends.map(bf => `
+            bfContainer.innerHTML = bestFriends.map(bf => `
                 <a href="profile.html?user=${encodeURIComponent(bf)}" style="text-decoration:none; color:inherit;">
                     <div style="border:1px solid #e9a838; background:#fffdf5; padding:4px 8px; font-size:11px; font-weight:bold; border-radius:3px; color:#b88600; margin-bottom:4px;">
                         ★ ${bf}
@@ -81,19 +203,17 @@ async function loadDashboard() {
                 </a>
             `).join('');
         } else {
-            bestFriendsContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No best friends listed.</p>`;
+            bfContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No best friends listed.</p>`;
         }
     }
 
-    // Friends List
-    const friendsContainer = document.getElementById("dash-friends-container");
-    const friends = user.friends || [];
-    const friendsTitle = document.getElementById("dash-friends-title");
-    if (friendsTitle) friendsTitle.innerText = `Friends (${friends.length})`;
+    const fTitle = document.getElementById("dash-friends-title");
+    if (fTitle) fTitle.innerText = `Friends (${friends.length})`;
 
-    if (friendsContainer) {
+    const fContainer = document.getElementById("dash-friends-container");
+    if (fContainer) {
         if (friends.length > 0) {
-            friendsContainer.innerHTML = friends.map(f => `
+            fContainer.innerHTML = friends.map(f => `
                 <a href="profile.html?user=${encodeURIComponent(f)}" style="text-decoration:none; color:inherit;">
                     <div style="border:1px solid #ccc; background:#f9f9f9; padding:4px 8px; font-size:11px; border-radius:3px; margin-bottom:4px;">
                         👤 ${f}
@@ -101,95 +221,45 @@ async function loadDashboard() {
                 </a>
             `).join('');
         } else {
-            friendsContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No friends added.</p>`;
-        }
-    }
-
-    // Badges Container
-    const badgeContainer = document.getElementById("dash-badges-container");
-    if (badgeContainer) {
-        const defaultBadge = {
-            name: "Welcome to AeroBLOX",
-            acquired_at: user.created_at || new Date().toISOString()
-        };
-        const badgeList = (user.badges && user.badges.length > 0) ? user.badges : [defaultBadge];
-
-        badgeContainer.innerHTML = badgeList.map(b => {
-            const isObj = typeof b === 'object' && b !== null;
-            const badgeName = isObj ? (b.name || "Badge") : b;
-            const dateAcquired = isObj && b.acquired_at 
-                ? new Date(b.acquired_at).toLocaleDateString() 
-                : (user.created_at ? new Date(user.created_at).toLocaleDateString() : "8/2/2026");
-
-            return `
-                <div class="item-card">
-                    <div class="item-thumb" style="background:#fff8c4; font-weight:bold; color:#b88600; font-size: 16px;">★</div>
-                    <strong style="font-size: 10px; color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${badgeName}">${badgeName}</strong>
-                    <div style="font-size: 9px; color: #666; margin-top: 4px; border-top: 1px dashed #ccc; padding-top: 3px;">
-                        Got: <strong>${dateAcquired}</strong>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // Game Passes Container
-    const gpContainer = document.getElementById("dash-gamepasses-container");
-    if (gpContainer) {
-        const passList = user.gamepasses || [];
-        if (passList.length > 0) {
-            gpContainer.innerHTML = passList.map(gp => {
-                const isObj = typeof gp === 'object' && gp !== null;
-                const passName = isObj ? (gp.name || "Game Pass") : gp;
-                return `
-                    <div class="item-card">
-                        <div class="item-thumb" style="background:#e8f4f8; font-weight:bold; color:#003366;">PASS</div>
-                        <strong style="font-size:10px; color:#003366; display:block;">${passName}</strong>
-                    </div>
-                `;
-            }).join('');
-        } else {
-            gpContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No game passes found.</p>`;
+            fContainer.innerHTML = `<p style="font-size: 11px; color: #666; margin: 0;">No friends added yet.</p>`;
         }
     }
 }
 
+/**
+ * Update User Status & Feed
+ */
 async function updateStatus() {
     const statusInput = document.getElementById("status-input");
+    if (!statusInput) return;
+
     const newStatus = statusInput.value.trim();
-    const username = localStorage.getItem("aeroUser");
+    const loggedInUser = localStorage.getItem("aeroUser");
+    if (!loggedInUser) return;
 
-    if (!newStatus || !username) return;
+    try {
+        const { error } = await _supabase
+            .from('users')
+            .update({ status: newStatus })
+            .eq('username', loggedInUser);
 
-    const { error } = await _supabase
-        .from('users')
-        .update({ status: newStatus })
-        .eq('username', username);
+        if (error) {
+            alert("Could not update status.");
+            return;
+        }
 
-    if (!error) {
         const feedDisplay = document.getElementById("feed-display");
-        if (feedDisplay) feedDisplay.innerText = `"${newStatus}"`;
-        statusInput.value = "";
+        if (feedDisplay) {
+            feedDisplay.innerText = newStatus !== "" ? `"${newStatus}"` : '"No status set"';
+        }
         alert("Status updated!");
-    } else {
-        alert("Error updating status.");
+    } catch (err) {
+        console.error("Status update error:", err);
     }
 }
 
-function applyAvatarColors(prefix, colors) {
-    const head = document.getElementById(`${prefix}-head`);
-    const torso = document.getElementById(`${prefix}-torso`);
-    const lArm = document.getElementById(`${prefix}-l-arm`);
-    const rArm = document.getElementById(`${prefix}-r-arm`);
-    const lLeg = document.getElementById(`${prefix}-l-leg`);
-    const rLeg = document.getElementById(`${prefix}-r-leg`);
+// Global scope attachment
+window.updateStatus = updateStatus;
 
-    if (head) head.style.backgroundColor = colors.head;
-    if (torso) torso.style.backgroundColor = colors.torso;
-    if (lArm) lArm.style.backgroundColor = colors.left_arm;
-    if (rArm) rArm.style.backgroundColor = colors.right_arm;
-    if (lLeg) lLeg.style.backgroundColor = colors.left_leg;
-    if (rLeg) rLeg.style.backgroundColor = colors.right_leg;
-}
-
-document.addEventListener("DOMContentLoaded", loadDashboard);
+// Run load on DOM ready
+document.addEventListener("DOMContentLoaded", loadHomeDashboard);
