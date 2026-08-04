@@ -1,5 +1,5 @@
 /**
- * js/friends.js - Friends, Best Friends & Friend Requests System
+ * js/friends.js - Friends, Best Friends, Friend Requests & Friend Removal
  */
 
 let currentViewTab = "friends";
@@ -110,7 +110,7 @@ function switchFriendsTab(tabType) {
     }
 }
 
-// Render Friends and Best Friends grid
+// Render Friends and Best Friends grid with "Remove Friend" option
 function renderFriendsGrid(list) {
     const container = document.getElementById("friends-page-container");
     if (!container) return;
@@ -128,11 +128,12 @@ function renderFriendsGrid(list) {
                 <div class="friend-thumb">
                     <img src="images/default_avatar.png" alt="Avatar" style="width: 40px; height: 40px;" onerror="this.src='https://via.placeholder.com/40';">
                 </div>
-                <strong style="color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">${friend}</strong>
+                <strong style="color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; font-size: 11px; width: 100%; white-space: nowrap;">${friend}</strong>
                 <a href="messages.html?to=${encodeURIComponent(friend)}" class="btn-action btn-green">Message</a>
                 <button onclick="toggleBestFriend('${friend}')" class="btn-action ${isBest ? 'btn-gold' : 'btn-blue'}">
                     ${isBest ? '★ Best Friend' : '+ Best Friend'}
                 </button>
+                <button onclick="removeFriend('${friend}')" class="btn-action btn-red">Remove</button>
             </div>
         `;
     });
@@ -157,7 +158,7 @@ function renderRequestsGrid(requests) {
                 <div class="friend-thumb">
                     <img src="images/default_avatar.png" alt="Avatar" style="width: 40px; height: 40px;" onerror="this.src='https://via.placeholder.com/40';">
                 </div>
-                <strong style="color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">${requester}</strong>
+                <strong style="color: #003366; display: block; overflow: hidden; text-overflow: ellipsis; font-size: 11px; width: 100%; white-space: nowrap;">${requester}</strong>
                 <button onclick="acceptFriendRequest('${requester}')" class="btn-action btn-green">Accept</button>
                 <button onclick="rejectFriendRequest('${requester}')" class="btn-action btn-red">Reject</button>
             </div>
@@ -226,7 +227,6 @@ async function acceptFriendRequest(requester) {
     if (!currentUser) return;
 
     try {
-        // 1. Update current user: remove request and add friend
         let updatedRequests = cachedRequests.filter(name => name !== requester);
         let updatedFriends = [...cachedFriends];
         if (!updatedFriends.includes(requester)) updatedFriends.push(requester);
@@ -238,7 +238,6 @@ async function acceptFriendRequest(requester) {
 
         if (selfErr) throw selfErr;
 
-        // 2. Update requester: add current user to their friends list
         const { data: reqData } = await _supabase
             .from('users')
             .select('friends')
@@ -314,12 +313,60 @@ async function toggleBestFriend(targetUsername) {
     }
 }
 
-// Make functions accessible to inline HTML triggers
+// Remove Friend (From both current user and target user)
+async function removeFriend(targetUsername) {
+    const currentUser = localStorage.getItem("aeroUser");
+    if (!currentUser) return;
+
+    if (!confirm(`Are you sure you want to remove ${targetUsername} from your friends list?`)) {
+        return;
+    }
+
+    try {
+        // 1. Remove target from current user's friends and best_friends
+        let updatedFriends = cachedFriends.filter(name => name !== targetUsername);
+        let updatedBest = cachedBestFriends.filter(name => name !== targetUsername);
+
+        const { error: selfErr } = await _supabase
+            .from('users')
+            .update({ friends: updatedFriends, best_friends: updatedBest })
+            .eq('username', currentUser);
+
+        if (selfErr) throw selfErr;
+
+        // 2. Remove current user from target user's friends and best_friends
+        const { data: targetData } = await _supabase
+            .from('users')
+            .select('friends, best_friends')
+            .eq('username', targetUsername)
+            .single();
+
+        if (targetData) {
+            let tFriends = (targetData.friends || []).filter(name => name !== currentUser);
+            let tBest = (targetData.best_friends || []).filter(name => name !== currentUser);
+
+            await _supabase
+                .from('users')
+                .update({ friends: tFriends, best_friends: tBest })
+                .eq('username', targetUsername);
+        }
+
+        alert(`Removed ${targetUsername} from your friends list.`);
+        loadFriendsData();
+
+    } catch (err) {
+        console.error("Error removing friend:", err);
+        alert("Could not remove friend.");
+    }
+}
+
+// Expose functions globally for HTML triggers
 window.switchFriendsTab = switchFriendsTab;
 window.sendFriendRequest = sendFriendRequest;
 window.acceptFriendRequest = acceptFriendRequest;
 window.rejectFriendRequest = rejectFriendRequest;
 window.toggleBestFriend = toggleBestFriend;
+window.removeFriend = removeFriend;
 
 document.addEventListener("DOMContentLoaded", () => {
     loadFriendsData();
