@@ -70,32 +70,8 @@
         <!-- Dashboard Body -->
         <div class="dashboard-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
             
-            <!-- Left Sidebar Navigation Column -->
-            <div class="left-col" style="width: 220px; flex-shrink: 0;">
-                
-                <!-- My Money Navigation Box -->
-                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
-                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Money</div>
-                    <div class="module-content" style="padding: 10px; font-size: 11px; line-height: 1.6;">
-                        • <a href="exchange.html" style="color: #0000cc; font-weight: bold; text-decoration: underline;">Trade Currency</a><br>
-                        • <a href="#" style="color: #0000cc; text-decoration: none;">Buy ROBUX</a>
-                    </div>
-                </div>
-
-                <!-- Balance Summary Box -->
-                <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
-                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Your Balance</div>
-                    <div class="module-content" style="padding: 10px; font-size: 11px;">
-                        <p style="margin: 0 0 6px 0;"><strong>Logged in as:</strong> <span id="nav-username">Guest</span></p>
-                        <p style="margin: 0 0 4px 0; color: #008000; font-weight: bold;">R$ Robux: <span id="balance-robux">0</span></p>
-                        <p style="margin: 0; color: #d68910; font-weight: bold;">T$ Tickets: <span id="balance-tickets">0</span></p>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Right Main Area: Earnings Table -->
-            <div class="right-col" style="flex-grow: 1;">
+            <!-- Left Area: Main Earnings Table -->
+            <div class="left-col" style="flex-grow: 1;">
                 <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
                     <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Earnings Summary</div>
                     <div class="module-content" style="padding: 10px;">
@@ -116,6 +92,30 @@
                         </table>
                     </div>
                 </div>
+            </div>
+
+            <!-- Right Sidebar Column: Navigation & Balance -->
+            <div class="right-col" style="width: 220px; flex-shrink: 0;">
+                
+                <!-- My Money Navigation Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Money</div>
+                    <div class="module-content" style="padding: 10px; font-size: 11px; line-height: 1.6;">
+                        • <a href="exchange.html" style="color: #0000cc; font-weight: bold; text-decoration: underline;">Trade Currency</a><br>
+                        • <a href="#" style="color: #0000cc; text-decoration: none;">Buy ROBUX</a>
+                    </div>
+                </div>
+
+                <!-- Balance Summary Box -->
+                <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Your Balance</div>
+                    <div class="module-content" style="padding: 10px; font-size: 11px;">
+                        <p style="margin: 0 0 6px 0;"><strong>Logged in as:</strong> <span id="nav-username">Guest</span></p>
+                        <p style="margin: 0 0 4px 0; color: #008000; font-weight: bold;">R$ Robux: <span id="balance-robux">0</span></p>
+                        <p style="margin: 0; color: #d68910; font-weight: bold;">T$ Tickets: <span id="balance-tickets">0</span></p>
+                    </div>
+                </div>
+
             </div>
 
         </div>
