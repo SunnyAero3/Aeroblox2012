@@ -7,48 +7,20 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .badge-grid, .inventory-grid, .friends-grid, .gamepass-grid { 
-            display: flex; gap: 8px; flex-wrap: wrap; 
-        }
+        .badge-grid, .friends-grid, .gamepass-grid { display: flex; gap: 8px; flex-wrap: wrap; }
         .item-card { width: 95px; border: 1px solid #ccc; padding: 6px; background: #fafafa; text-align: center; font-size: 10px; }
         .item-thumb { width: 100%; height: 45px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd; }
-        .gamepass-card { width: 170px; border: 1px solid #ccc; padding: 8px; background: #fdfdfd; font-size: 11px; line-height: 1.4; }
 
-        /* Centered Primary Top Nav Alignment */
-        .top-nav {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .top-nav .nav-links {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-        }
+        .top-nav { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .top-nav .nav-links { display: flex; justify-content: center; align-items: center; gap: 6px; }
 
-        /* Currency Counter Styling */
-        .currency-display {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .currency-item {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
+        .currency-display { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: bold; }
+        .currency-item { display: flex; align-items: center; gap: 3px; }
 
-        /* Online / Offline Status Dot (Bright Red Offline Dot) */
         .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
         .dot-online { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
         .dot-offline { background-color: #ff3b30; box-shadow: 0 0 5px rgba(255, 59, 48, 0.6); }
 
-        /* Avatar Visual Box & Clickable Scale */
         .avatar-render-box { width: 110px; height: 140px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; border: 1px solid #ccc; padding: 5px; cursor: pointer; transition: transform 0.15s ease; }
         .avatar-render-box:hover { transform: scale(1.04); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
         .av-head { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #333; margin-bottom: 2px; }
@@ -58,7 +30,6 @@
         .av-legs-row { display: flex; gap: 2px; margin-top: 2px; }
         .av-leg { width: 13px; height: 40px; border: 1px solid #333; }
 
-        /* Modal Lightbox Overlay */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #fff; padding: 20px; border-radius: 6px; border: 2px solid #003366; text-align: center; position: relative; width: 260px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         .avatar-render-box-large { width: 180px; height: 230px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f0f0f0; border: 1px solid #aaa; padding: 10px; }
@@ -66,6 +37,19 @@
         .avatar-render-box-large .av-arm { width: 20px; height: 70px; }
         .avatar-render-box-large .av-torso { width: 48px; height: 70px; }
         .avatar-render-box-large .av-leg { width: 22px; height: 70px; }
+
+        /* 2011 Stuff Layout Styling */
+        .stuff-container { border: 1px solid #777; background: #fff; margin: 15px; }
+        .stuff-header { background: linear-gradient(to bottom, #4a4a4a, #2b2b2b); color: #fff; font-weight: bold; padding: 6px 10px; font-size: 13px; }
+        .stuff-body { display: flex; min-height: 380px; }
+        .stuff-sidebar { width: 110px; border-right: 1px solid #ccc; background: #fdfdfd; flex-shrink: 0; }
+        .stuff-tab-btn { width: 100%; text-align: center; padding: 6px 0; border: none; border-bottom: 1px solid #e0e0e0; background: #f7f7f7; font-size: 10px; cursor: pointer; color: #333; }
+        .stuff-tab-btn:hover { background: #eaeaea; }
+        .stuff-content { flex-grow: 1; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; }
+        .stuff-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; align-content: flex-start; }
+        .stuff-pagination { font-size: 10px; text-align: center; padding: 8px 0; color: #003366; }
+        .recommendations-box { border: 1px solid #d0d0d0; border-radius: 4px; padding: 8px; margin-top: 10px; background: #fafafa; }
+        .recommendations-title { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -98,7 +82,6 @@
                 <span id="top-username-display" style="font-weight: bold;">Hi, Guest</span>
                 <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
             </div>
-            <!-- Top Right Currency Bar -->
             <div id="top-currency-bar" class="currency-display" style="display: none;">
                 <div class="currency-item" title="Robux">
                     <span style="color: #008000;">R$:</span>
@@ -111,7 +94,7 @@
             </div>
         </div>
 
-        <!-- Primary Navigation Bar (Centered) -->
+        <!-- Navigation Bar -->
         <div class="top-nav">
             <h1>AeroBLOX</h1>
             <div class="nav-links">
@@ -119,22 +102,19 @@
             </div>
         </div>
 
-        <!-- Main Body Content -->
+        <!-- Main Profile Body Content -->
         <div class="profile-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
             
             <!-- Left Column -->
             <div class="left-col" style="width: 220px; flex-shrink: 0;">
-                
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <h2 id="profile-username" style="font-size: 18px; color: #003366; margin: 0;">User Profile</h2>
-                    <!-- Online / Offline Pill -->
                     <span id="online-status-pill" style="font-size: 11px; font-weight: bold; display: flex; align-items: center;">
                         <span id="status-dot" class="status-dot dot-offline"></span>
                         <span id="status-text" style="color: #ff3b30;">Offline</span>
                     </span>
                 </div>
                 
-                <!-- Avatar Rendering Box -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-content" style="text-align: center; background: #fff; padding: 10px;">
                         <div class="avatar-render-box" id="avatar-container" onclick="openAvatarModal()" title="Click to enlarge avatar">
@@ -153,7 +133,6 @@
                     </div>
                 </div>
 
-                <!-- Add Friend / Send Message Buttons -->
                 <div id="profile-actions-box" class="module-box" style="margin-bottom: 15px; display: none;">
                     <div class="module-content" style="background: #fff; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
                         <button id="btn-send-friend" class="btn-classic" style="width: 100%; font-weight: bold;" onclick="sendFriendRequest()">➕ Add Friend</button>
@@ -161,7 +140,6 @@
                     </div>
                 </div>
 
-                <!-- Account Info -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">User Information</div>
                     <div class="module-content" style="background: #fff; padding: 10px; font-size: 11px;">
@@ -170,7 +148,6 @@
                     </div>
                 </div>
 
-                <!-- Best Friends Box -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">Best Friends</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
@@ -180,7 +157,6 @@
                     </div>
                 </div>
 
-                <!-- Friends Box -->
                 <div class="module-box">
                     <div class="module-header" id="friends-title">Friends (0)</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
@@ -193,8 +169,6 @@
 
             <!-- Right Column -->
             <div class="right-col" style="flex-grow: 1;">
-                
-                <!-- User Personal Status Box -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">Status</div>
                     <div class="module-content" style="background: #fff; padding: 10px; font-size: 11px; color: #333;">
@@ -202,7 +176,6 @@
                     </div>
                 </div>
 
-                <!-- User Places -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header" id="places-title">Places</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
@@ -214,7 +187,6 @@
                     </div>
                 </div>
 
-                <!-- AeroBLOX Badges -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">AeroBLOX Badges</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
@@ -224,7 +196,6 @@
                     </div>
                 </div>
 
-                <!-- Player Badges -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">Player Badges</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
@@ -234,7 +205,6 @@
                     </div>
                 </div>
 
-                <!-- Game Passes -->
                 <div class="module-box" style="margin-bottom: 15px;">
                     <div class="module-header">Game Passes</div>
                     <div class="module-content" style="background: #fff; padding: 10px;">
@@ -243,19 +213,57 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Inventory -->
-                <div class="module-box">
-                    <div class="module-header">Inventory</div>
-                    <div class="module-content" style="background: #fff; padding: 10px;">
-                        <div id="inventory-container" class="inventory-grid">
-                            <p style="font-size: 11px; color: #666; margin: 0;">Inventory is empty.</p>
+        </div>
+
+        <!-- CLASSIC 2011 "STUFF" / INVENTORY SECTION (PROFILE VIEW) -->
+        <div id="stuff-section" class="stuff-container">
+            <div class="stuff-header">Stuff</div>
+            <div class="stuff-body">
+                
+                <!-- Left Category Sidebar -->
+                <div class="stuff-sidebar">
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('All', targetProfileUser, 'profile-stuff-grid')">All</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Heads', targetProfileUser, 'profile-stuff-grid')">Heads</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Faces', targetProfileUser, 'profile-stuff-grid')">Faces</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Gear', targetProfileUser, 'profile-stuff-grid')">Gear</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Hats', targetProfileUser, 'profile-stuff-grid')">Hats</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('T-Shirts', targetProfileUser, 'profile-stuff-grid')">T-Shirts</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Shirts', targetProfileUser, 'profile-stuff-grid')">Shirts</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Pants', targetProfileUser, 'profile-stuff-grid')">Pants</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Decals', targetProfileUser, 'profile-stuff-grid')">Decals</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Models', targetProfileUser, 'profile-stuff-grid')">Models</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Places', targetProfileUser, 'profile-stuff-grid')">Places</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Badges', targetProfileUser, 'profile-stuff-grid')">Badges</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Left Arms', targetProfileUser, 'profile-stuff-grid')">Left Arms</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Right Arms', targetProfileUser, 'profile-stuff-grid')">Right Arms</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Left Legs', targetProfileUser, 'profile-stuff-grid')">Left Legs</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Right Legs', targetProfileUser, 'profile-stuff-grid')">Right Legs</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Torsos', targetProfileUser, 'profile-stuff-grid')">Torsos</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Packages', targetProfileUser, 'profile-stuff-grid')">Packages</button>
+                </div>
+
+                <!-- Right Item Grid Area -->
+                <div class="stuff-content">
+                    <div>
+                        <div id="profile-stuff-grid" class="stuff-grid">
+                            <p style="font-size:11px; color:#666;">Loading stuff...</p>
+                        </div>
+                        <div class="stuff-pagination">Page 1 of 1</div>
+                    </div>
+
+                    <!-- Recommendations Sub-Box -->
+                    <div class="recommendations-box">
+                        <div class="recommendations-title">Recommendations</div>
+                        <p style="font-size:10px; color:#666; margin:0 0 6px 0;">Here are some other items that we think you might like:</p>
+                        <div id="profile-recommendations-grid" style="display: flex; gap: 10px;">
+                            <div style="font-size:10px; color:#888;">No recommendations currently available.</div>
                         </div>
                     </div>
                 </div>
 
             </div>
-
         </div>
 
     </div>
@@ -263,7 +271,16 @@
     <!-- Scripts -->
     <script src="js/auth.js"></script>
     <script src="js/friends.js"></script>
+    <script src="js/manage.js"></script>
     <script src="js/profile.js"></script>
     <script src="js/music.js"></script>
+    <script>
+        let targetProfileUser = "uav3y5le";
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            targetProfileUser = urlParams.get('user') || getLoggedInUser();
+            filterStuffCategory('All', targetProfileUser, 'profile-stuff-grid');
+        });
+    </script>
 </body>
 </html>
