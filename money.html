@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AeroBLOX - My Money</title>
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Supabase Core & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
+    
+    <!-- Authentication & Platform Scripts -->
+    <script src="js/auth.js" defer></script>
     <script src="js/music.js" defer></script>
     <script src="js/money.js" defer></script>
+    
     <style>
         .money-container {
             display: flex;
@@ -109,6 +115,7 @@
             <div class="side-box">
                 <div class="side-box-title">Your Balance</div>
                 <div class="side-box-content">
+                    <strong>Logged in as:</strong> <span id="nav-username">Guest</span><br><br>
                     <strong>Robux:</strong> <span id="balance-robux" style="color: #008000; font-weight: bold;">0</span> R$<br>
                     <strong>Tickets:</strong> <span id="balance-tickets" style="color: #cc6600; font-weight: bold;">0</span> Tix
                 </div>
