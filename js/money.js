@@ -1,34 +1,43 @@
 /**
- * money.js - User Currency Balance & Summary Loader
+ * js/money.js - Money Page Balance Loader
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadUserBalance();
+    loadMoneyPageData();
 });
 
-async function loadUserBalance() {
-    const user = await window.getAuthenticatedUser();
-    const userId = user ? user.id : localStorage.getItem("aeroUserId");
+async function loadMoneyPageData() {
+    const loggedInUser = localStorage.getItem("aeroUser");
 
-    if (!userId) return;
+    // 1. Update display name in sidebar
+    const navUsernameEl = document.getElementById("nav-username");
+    if (navUsernameEl) {
+        navUsernameEl.innerText = loggedInUser || "Guest";
+    }
+
+    if (!loggedInUser || typeof _supabase === 'undefined') return;
 
     try {
-        const { data, error } = await _supabase
-            .from("profiles")
-            .select("robux, tickets")
-            .eq("id", userId)
-            .single();
+        // 2. Fetch balance using your 'users' table structure
+        const { data: userData, error } = await _supabase
+            .from('users')
+            .select('robux, tickets')
+            .eq('username', loggedInUser)
+            .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+            console.error("Error loading currency balance:", error);
+            return;
+        }
 
-        if (data) {
+        if (userData) {
             const robuxEl = document.getElementById("balance-robux");
             const ticketsEl = document.getElementById("balance-tickets");
 
-            if (robuxEl) robuxEl.innerText = data.robux || 0;
-            if (ticketsEl) ticketsEl.innerText = data.tickets || 0;
+            if (robuxEl) robuxEl.innerText = userData.robux ?? 0;
+            if (ticketsEl) ticketsEl.innerText = userData.tickets ?? 0;
         }
     } catch (err) {
-        console.error("Error loading profile currency balance:", err);
+        console.error("Failed to load user money data:", err);
     }
 }
