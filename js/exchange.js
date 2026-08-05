@@ -1,5 +1,5 @@
 /**
- * exchange.js - RobEX Exchange Engine
+ * js/exchange.js - RobEX Currency Exchange System
  */
 
 const TIX_EXCHANGE_RATE = 10; // 10 Tix = 1 Robux
@@ -40,15 +40,14 @@ function calculateTradePreview() {
 }
 
 async function processTrade() {
-    const user = await window.getAuthenticatedUser();
+    const loggedInUser = localStorage.getItem("aeroUser");
     
-    if (!user) {
+    if (!loggedInUser) {
         alert("You must be logged in to trade currency.");
         window.location.href = "login.html";
         return;
     }
 
-    const userId = user.id;
     const giveAmount = parseInt(document.getElementById("tradeGiveAmount")?.value) || 0;
     const giveCurrency = document.getElementById("giveCurrency")?.value;
 
@@ -58,56 +57,62 @@ async function processTrade() {
     }
 
     try {
-        const { data: profile, error } = await _supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", userId)
-            .single();
+        // Fetch current user balances from 'users' table
+        const { data: user, error } = await _supabase
+            .from('users')
+            .select('robux, tickets')
+            .eq('username', loggedInUser)
+            .maybeSingle();
 
-        if (error) throw error;
+        if (error || !user) throw new Error("Could not fetch user data.");
+
+        const currentTix = user.tickets ?? 0;
+        const currentRobux = user.robux ?? 0;
 
         if (giveCurrency === "tix") {
             if (giveAmount % TIX_EXCHANGE_RATE !== 0) {
                 alert(`Tix must be traded in multiples of ${TIX_EXCHANGE_RATE}.`);
                 return;
             }
-            if (profile.tickets < giveAmount) {
+            if (currentTix < giveAmount) {
                 alert("You do not have enough Tickets.");
                 return;
             }
 
             const robuxGained = giveAmount / TIX_EXCHANGE_RATE;
-            const newTix = profile.tickets - giveAmount;
-            const newRobux = profile.robux + robuxGained;
+            const newTix = currentTix - giveAmount;
+            const newRobux = currentRobux + robuxGained;
 
             const { error: updateError } = await _supabase
-                .from("profiles")
+                .from('users')
                 .update({ tickets: newTix, robux: newRobux })
-                .eq("id", userId);
+                .eq('username', loggedInUser);
 
             if (updateError) throw updateError;
 
             alert(`Trade Successful! Traded ${giveAmount} Tix for ${robuxGained} R$.`);
         } else {
-            if (profile.robux < giveAmount) {
+            if (currentRobux < giveAmount) {
                 alert("You do not have enough Robux.");
                 return;
             }
 
             const tixGained = giveAmount * TIX_EXCHANGE_RATE;
-            const newRobux = profile.robux - giveAmount;
-            const newTix = profile.tickets + tixGained;
+            const newRobux = currentRobux - giveAmount;
+            const newTix = currentTix + tixGained;
 
             const { error: updateError } = await _supabase
-                .from("profiles")
+                .from('users')
                 .update({ tickets: newTix, robux: newRobux })
-                .eq("id", userId);
+                .eq('username', loggedInUser);
 
             if (updateError) throw updateError;
 
             alert(`Trade Successful! Traded ${giveAmount} R$ for ${tixGained} Tix.`);
         }
 
+        // Refresh topbar and page metrics
+        if (typeof checkAuth === "function") checkAuth();
         calculateTradePreview();
 
     } catch (err) {
