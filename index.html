@@ -7,18 +7,14 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .badge-grid, .inventory-grid, .friends-grid { 
-            display: flex; gap: 8px; flex-wrap: wrap; 
-        }
+        .badge-grid, .friends-grid { display: flex; gap: 8px; flex-wrap: wrap; }
         .item-card { width: 95px; border: 1px solid #ccc; padding: 6px; background: #fafafa; text-align: center; font-size: 10px; }
         .item-thumb { width: 100%; height: 45px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border: 1px solid #ddd; }
         
-        /* Online Status Dot */
         .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
         .dot-online { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
         .dot-offline { background-color: #ff3b30; box-shadow: 0 0 5px rgba(255, 59, 48, 0.6); }
 
-        /* Avatar Box styling */
         .avatar-render-box { width: 110px; height: 140px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; border: 1px solid #ccc; padding: 5px; cursor: pointer; transition: transform 0.15s ease; }
         .avatar-render-box:hover { transform: scale(1.04); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
         .av-head { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #333; margin-bottom: 2px; }
@@ -27,6 +23,19 @@
         .av-torso { width: 28px; height: 40px; border: 1px solid #333; }
         .av-legs-row { display: flex; gap: 2px; margin-top: 2px; }
         .av-leg { width: 13px; height: 40px; border: 1px solid #333; }
+
+        /* 2011 Stuff Layout Styling */
+        .stuff-container { border: 1px solid #777; background: #fff; margin: 15px; }
+        .stuff-header { background: linear-gradient(to bottom, #4a4a4a, #2b2b2b); color: #fff; font-weight: bold; padding: 6px 10px; font-size: 13px; }
+        .stuff-body { display: flex; min-height: 380px; }
+        .stuff-sidebar { width: 110px; border-right: 1px solid #ccc; background: #fdfdfd; flex-shrink: 0; }
+        .stuff-tab-btn { width: 100%; text-align: center; padding: 6px 0; border: none; border-bottom: 1px solid #e0e0e0; background: #f7f7f7; font-size: 10px; cursor: pointer; color: #333; }
+        .stuff-tab-btn:hover { background: #eaeaea; }
+        .stuff-content { flex-grow: 1; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; }
+        .stuff-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; align-content: flex-start; }
+        .stuff-pagination { font-size: 10px; text-align: center; padding: 8px 0; color: #003366; }
+        .recommendations-box { border: 1px solid #d0d0d0; border-radius: 4px; padding: 8px; margin-top: 10px; background: #fafafa; }
+        .recommendations-title { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -45,7 +54,7 @@
             </div>
         </div>
 
-        <!-- Centered Primary Navigation -->
+        <!-- Primary Navigation -->
         <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
             <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
             <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
@@ -57,7 +66,7 @@
             </div>
         </div>
 
-        <!-- Centered Sub Navigation Bar -->
+        <!-- Sub Navigation Bar -->
         <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
             <a href="index.html" style="color: #fff; text-decoration: underline;">Home</a>
             <a href="#" style="color: #fff; text-decoration: none;">Places</a>
@@ -67,16 +76,15 @@
             <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
             <a href="friends.html" style="color: #fff; text-decoration: none;">Friends</a>
             <a href="#" style="color: #fff; text-decoration: none;">Character</a>
-            <a href="#" style="color: #fff; text-decoration: none;">Stuff</a>
+            <a href="#stuff-section" style="color: #fff; text-decoration: none;">Stuff</a>
             <a href="#" style="color: #fff; text-decoration: none;">Money</a>
         </div>
 
-        <!-- Dashboard Content -->
+        <!-- Main Dashboard Content -->
         <div class="dashboard-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
             
             <!-- Left Sidebar Column -->
             <div class="left-col" style="width: 220px; flex-shrink: 0;">
-                
                 <h2 id="home-username" style="font-size: 18px; color: #003366; margin: 0 0 10px 0;">Hi, User</h2>
 
                 <!-- Avatar Box -->
@@ -137,7 +145,6 @@
                         <p style="margin: 0;"><strong>Last Active:</strong> <span id="dash-last-online">Just now</span></p>
                     </div>
                 </div>
-
             </div>
 
             <!-- Right Main Area -->
@@ -207,12 +214,68 @@
 
         </div>
 
+        <!-- CLASSIC 2011 "STUFF" / INVENTORY SECTION -->
+        <div id="stuff-section" class="stuff-container">
+            <div class="stuff-header">Stuff</div>
+            <div class="stuff-body">
+                
+                <!-- Left Category Navigation Sidebar -->
+                <div class="stuff-sidebar">
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('All', getLoggedInUser(), 'index-stuff-grid')">All</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Heads', getLoggedInUser(), 'index-stuff-grid')">Heads</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Faces', getLoggedInUser(), 'index-stuff-grid')">Faces</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Gear', getLoggedInUser(), 'index-stuff-grid')">Gear</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Hats', getLoggedInUser(), 'index-stuff-grid')">Hats</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('T-Shirts', getLoggedInUser(), 'index-stuff-grid')">T-Shirts</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Shirts', getLoggedInUser(), 'index-stuff-grid')">Shirts</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Pants', getLoggedInUser(), 'index-stuff-grid')">Pants</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Decals', getLoggedInUser(), 'index-stuff-grid')">Decals</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Models', getLoggedInUser(), 'index-stuff-grid')">Models</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Places', getLoggedInUser(), 'index-stuff-grid')">Places</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Badges', getLoggedInUser(), 'index-stuff-grid')">Badges</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Left Arms', getLoggedInUser(), 'index-stuff-grid')">Left Arms</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Right Arms', getLoggedInUser(), 'index-stuff-grid')">Right Arms</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Left Legs', getLoggedInUser(), 'index-stuff-grid')">Left Legs</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Right Legs', getLoggedInUser(), 'index-stuff-grid')">Right Legs</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Torsos', getLoggedInUser(), 'index-stuff-grid')">Torsos</button>
+                    <button class="stuff-tab-btn" onclick="filterStuffCategory('Packages', getLoggedInUser(), 'index-stuff-grid')">Packages</button>
+                </div>
+
+                <!-- Right Stuff Item Area -->
+                <div class="stuff-content">
+                    <div>
+                        <div id="index-stuff-grid" class="stuff-grid">
+                            <p style="font-size:11px; color:#666;">Loading stuff...</p>
+                        </div>
+                        <div class="stuff-pagination">Page 1 of 1</div>
+                    </div>
+
+                    <!-- Recommendations Sub-Box -->
+                    <div class="recommendations-box">
+                        <div class="recommendations-title">Recommendations</div>
+                        <p style="font-size:10px; color:#666; margin:0 0 6px 0;">Here are some other items that we think you might like:</p>
+                        <div id="index-recommendations-grid" style="display: flex; gap: 10px;">
+                            <div style="font-size:10px; color:#888;">No recommendations currently available.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
     <script src="js/home.js"></script>
     <script src="js/friends.js"></script>
+    <script src="js/manage.js"></script>
     <script src="js/music.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentUser = getLoggedInUser();
+            filterStuffCategory('All', currentUser, 'index-stuff-grid');
+        });
+    </script>
 </body>
 </html>
