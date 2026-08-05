@@ -2,75 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AeroBLOX - Currency Exchange</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="css/style.css">
-    
-    <!-- Supabase Core & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
-    
-    <!-- Authentication & Platform Scripts -->
-    <script src="js/auth.js" defer></script>
-    <script src="js/music.js" defer></script>
-    <script src="js/exchange.js" defer></script>
-    
     <style>
-        .exchange-wrapper {
-            max-width: 950px;
-            margin: 0 auto;
-            font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-size: 11px;
-        }
-        .page-header {
-            background: linear-gradient(to bottom, #505050, #222222);
-            color: white;
-            padding: 6px 12px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .exchange-grid {
-            display: grid;
-            grid-template-columns: 220px 1fr 220px;
-            gap: 10px;
-            background: #fff;
-            border: 1px solid #7f9db9;
-            padding: 10px;
-        }
-        .order-book-box {
-            border: 1px solid #7f9db9;
-            background: #fafafa;
-            height: 380px;
-            overflow-y: auto;
-        }
-        .order-book-title {
-            background: #e0e0e0;
-            padding: 4px;
-            font-weight: bold;
-            text-align: center;
-            border-bottom: 1px solid #ccc;
-        }
-        .order-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 2px 6px;
-            border-bottom: 1px solid #eee;
-        }
-        .trade-center {
-            border: 1px solid #7f9db9;
-            padding: 10px;
-            background: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
         .trade-table-header {
             width: 100%;
             border-collapse: collapse;
             background: #e8e8e8;
             border: 1px solid #ccc;
             text-align: center;
-            font-weight: bold;
+            font-size: 11px;
+            font-family: Verdana, Arial, sans-serif;
         }
         .trade-table-header td {
             padding: 4px;
@@ -78,120 +22,167 @@
         }
         .trade-box {
             background: #fff;
-            border: 1px solid #7f9db9;
-            padding: 10px;
+            border: 1px solid #a6a6a6;
+            padding: 15px;
             text-align: center;
+            font-size: 11px;
+            font-family: Verdana, Arial, sans-serif;
         }
         .btn-submit-trade {
             background: #e1e1e1;
             border: 1px solid #7f9db9;
-            padding: 3px 12px;
+            padding: 4px 14px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 10px;
         }
         .btn-submit-trade:hover {
             background: #fff;
         }
         .open-positions {
-            border: 1px solid #7f9db9;
+            border: 1px solid #a6a6a6;
             background: #fff;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-size: 10px;
+            font-family: Verdana, Arial, sans-serif;
         }
     </style>
 </head>
-<body style="background: #e1e1e1; margin: 0; padding: 20px;">
+<body>
 
-    <div class="exchange-wrapper">
-        <div class="page-header">Currency Exchange</div>
+    <div class="main-container">
         
-        <div class="exchange-grid">
-            <!-- Left Column: Available Tickets Order Book -->
-            <div class="order-book-box">
-                <div class="order-book-title">Available Tickets</div>
-                <div class="order-row"><span>48,023</span><span style="color:#666;">@ 0.0526:1</span></div>
-                <div class="order-row"><span>75,001</span><span style="color:#666;">@ 0.0526:1</span></div>
-                <div class="order-row"><span>10,000</span><span style="color:#666;">@ 0.0526:1</span></div>
-                <div class="order-row"><span>150,000</span><span style="color:#666;">@ 0.0526:1</span></div>
-                <div class="order-row"><span>972</span><span style="color:#666;">@ 0.0909:1</span></div>
+        <!-- Header Bar with Greeting & Robux / Tix -->
+        <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
+            <div id="user-greeting">
+                <span id="dash-greeting" style="font-weight: bold;">Hi, User</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
             </div>
-
-            <!-- Middle Column: Exchange Desk -->
-            <div class="trade-center">
-                <table class="trade-table-header">
-                    <tr><td colspan="4">ROBUX</td></tr>
-                    <tr style="font-size: 10px; font-weight: normal;">
-                        <td>Pair</td>
-                        <td>Rate</td>
-                        <td>Spread</td>
-                        <td>High / Low</td>
-                    </tr>
-                    <tr style="font-weight: bold;">
-                        <td>BUX/TIX</td>
-                        <td>0.1000/10.0000</td>
-                        <td>10</td>
-                        <td>12.0/8.0</td>
-                    </tr>
-                </table>
-
-                <!-- Trade Calculation Form -->
-                <div class="trade-box">
-                    <div style="font-weight: bold; margin-bottom: 8px;">Trade</div>
-                    <div style="margin-bottom: 8px;">
-                        <input type="radio" name="orderType" id="marketOrder" checked> <label for="marketOrder">Market Order</label>
-                        <input type="radio" name="orderType" id="limitOrder"> <label for="limitOrder">Limit Order</label>
-                    </div>
-
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 6px;">
-                        <label style="width: 70px; text-align: right;">What I'll give:</label>
-                        <input type="number" id="tradeGiveAmount" value="10" min="1" style="width: 80px; padding: 2px; border: 1px solid #7f9db9;">
-                        <select id="giveCurrency" style="padding: 2px;">
-                            <option value="tix">Tickets</option>
-                            <option value="robux">Robux</option>
-                        </select>
-                    </div>
-
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 6px;">
-                        <label style="width: 70px; text-align: right;">What I'll get:</label>
-                        <input type="text" id="tradeGetAmount" value="1" readonly style="width: 80px; padding: 2px; border: 1px solid #7f9db9; background: #eee;">
-                        <span id="getCurrencyLabel" style="font-weight: bold; color: #008000;">Robux</span>
-                    </div>
-
-                    <div style="color: red; font-size: 9px; max-width: 250px; margin: 8px auto 0 auto;">
-                        *NOTE: Your trade executes instantly against bank balances.
-                    </div>
-
-                    <button class="btn-submit-trade" id="btnSubmitTrade">Submit Trade</button>
-                </div>
-
-                <!-- Open Positions -->
-                <div class="open-positions">
-                    <div style="background: #e0e0e0; padding: 3px 6px; font-weight: bold;">My Open Positions</div>
-                    <table style="width: 100%; font-size: 10px; border-collapse: collapse;">
-                        <tr style="background: #f0f0f0; text-align: left;">
-                            <th>Action</th>
-                            <th>Offer</th>
-                            <th>Status</th>
-                        </tr>
-                        <tr>
-                            <td><a href="#" style="color: red;">Cancel</a></td>
-                            <td>10 Tix @ 10.0000</td>
-                            <td>Filled</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Right Column: Available ROBUX Order Book -->
-            <div class="order-book-box">
-                <div class="order-book-title">Available ROBUX</div>
-                <div class="order-row"><span>2,840</span><span style="color:#666;">@ 10.0298</span></div>
-                <div class="order-row"><span>81,650</span><span style="color:#666;">@ 10.0936</span></div>
-                <div class="order-row"><span>7,972</span><span style="color:#666;">@ 10.1994</span></div>
-                <div class="order-row"><span>35,549</span><span style="color:#666;">@ 10.2017</span></div>
+            <div class="currency-display" style="display: flex; gap: 8px; font-weight: bold; font-size: 11px;">
+                <span style="background: #008000; color: #fff; padding: 2px 6px; border-radius: 2px;">R$ <span id="top-robux-count">0</span></span>
+                <span style="background: #d68910; color: #fff; padding: 2px 6px; border-radius: 2px;">T$ <span id="top-tickets-count">0</span></span>
             </div>
         </div>
+
+        <!-- Primary Navigation -->
+        <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
+            <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
+            <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
+                <a href="index.html" style="color: #fff; text-decoration: underline; font-weight: bold;">My AeroBLOX</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Games</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Catalog</a> | 
+                <a href="people.html" style="color: #fff; text-decoration: none;">People</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Forum</a>
+            </div>
+        </div>
+
+        <!-- Sub Navigation Bar -->
+        <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
+            <a href="index.html" style="color: #fff; text-decoration: none;">Home</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Places</a>
+            <a href="inbox.html" style="color: #fff; text-decoration: none;">Inbox</a>
+            <a href="messages.html" style="color: #fff; text-decoration: none;">Messages</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Account</a>
+            <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
+            <a href="friends.html" style="color: #fff; text-decoration: none;">Friends</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Character</a>
+            <a href="index.html#stuff-section" style="color: #fff; text-decoration: none;">Stuff</a>
+            <a href="money.html" style="color: #fff; text-decoration: underline;">Money</a>
+        </div>
+
+        <!-- Dashboard Body -->
+        <div class="dashboard-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
+            
+            <!-- Left Sidebar Navigation Column -->
+            <div class="left-col" style="width: 220px; flex-shrink: 0;">
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Money</div>
+                    <div class="module-content" style="padding: 10px; font-size: 11px; line-height: 1.6;">
+                        • <a href="money.html" style="color: #0000cc; text-decoration: none;">Earnings Summary</a><br>
+                        • <a href="exchange.html" style="color: #0000cc; font-weight: bold; text-decoration: underline;">Trade Currency</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Exchange Desk Area -->
+            <div class="right-col" style="flex-grow: 1;">
+                
+                <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Currency Exchange</div>
+                    <div class="module-content" style="padding: 15px; display: flex; flex-direction: column; gap: 12px;">
+                        
+                        <!-- Rate Summary Table -->
+                        <table class="trade-table-header">
+                            <tr style="font-weight: bold; background: #dcdcdc;"><td colspan="4">ROBUX / TICKETS</td></tr>
+                            <tr style="font-size: 10px;">
+                                <td>Pair</td>
+                                <td>Rate</td>
+                                <td>Spread</td>
+                                <td>High / Low</td>
+                            </tr>
+                            <tr style="font-weight: bold;">
+                                <td>BUX/TIX</td>
+                                <td>0.1000 / 10.0000</td>
+                                <td>10</td>
+                                <td>12.0 / 8.0</td>
+                            </tr>
+                        </table>
+
+                        <!-- Instant Market Trade Form -->
+                        <div class="trade-box">
+                            <div style="font-weight: bold; margin-bottom: 10px; font-size: 12px;">Trade Desk</div>
+                            
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <label style="width: 80px; text-align: right;">What I'll give:</label>
+                                <input type="number" id="tradeGiveAmount" value="10" min="1" style="width: 90px; padding: 3px; border: 1px solid #7f9db9;">
+                                <select id="giveCurrency" style="padding: 2px;">
+                                    <option value="tix">Tickets</option>
+                                    <option value="robux">Robux</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <label style="width: 80px; text-align: right;">What I'll get:</label>
+                                <input type="text" id="tradeGetAmount" value="1" readonly style="width: 90px; padding: 3px; border: 1px solid #7f9db9; background: #eee;">
+                                <span id="getCurrencyLabel" style="font-weight: bold; color: #008000; width: 60px; text-align: left;">Robux</span>
+                            </div>
+
+                            <div style="color: #c00; font-size: 10px; margin-top: 6px;">
+                                * Trades execute instantly against live bank account balances.
+                            </div>
+
+                            <button class="btn-submit-trade" id="btnSubmitTrade">Submit Trade</button>
+                        </div>
+
+                        <!-- Open Positions History -->
+                        <div class="open-positions">
+                            <div style="background: #e0e0e0; padding: 4px 8px; font-weight: bold; border-bottom: 1px solid #ccc;">My Recent Trades</div>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr style="background: #f0f0f0; text-align: left;">
+                                    <th style="padding: 4px;">Action</th>
+                                    <th style="padding: 4px;">Offer</th>
+                                    <th style="padding: 4px;">Status</th>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px; border-top: 1px solid #eee; color: red;">Completed</td>
+                                    <td style="padding: 4px; border-top: 1px solid #eee;">10 Tix @ 10.0000</td>
+                                    <td style="padding: 4px; border-top: 1px solid #eee;">Filled</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/exchange.js" defer></script>
+    <script src="js/music.js" defer></script>
 </body>
 </html>
