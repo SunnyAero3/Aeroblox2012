@@ -2,46 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AeroBLOX - My Money</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="css/style.css">
-    
-    <!-- Supabase Core & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
-    
-    <!-- Authentication & Platform Scripts -->
-    <script src="js/auth.js" defer></script>
-    <script src="js/music.js" defer></script>
-    <script src="js/money.js" defer></script>
-    
     <style>
-        .money-container {
-            display: flex;
-            gap: 20px;
-            max-width: 900px;
-            margin: 0 auto;
-            font-family: Verdana, Arial, Helvetica, sans-serif;
-        }
-        .earnings-panel {
-            flex: 2;
-            background: #fff;
-            border: 1px solid #7f9db9;
-        }
-        .earnings-title {
-            background: linear-gradient(to bottom, #505050, #222222);
-            color: #fff;
-            padding: 5px 10px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .earnings-table {
+        .money-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 11px;
+            font-family: Verdana, Arial, sans-serif;
         }
-        .earnings-table td {
-            padding: 4px 8px;
+        .money-table td {
+            padding: 5px 8px;
             border-bottom: 1px dashed #ccc;
         }
         .time-header {
@@ -50,78 +23,108 @@
             background: #f0f0f0;
             padding-top: 8px !important;
         }
-        .sidebar-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .side-box {
-            border: 1px solid #7f9db9;
-            background: #f9f9f9;
-        }
-        .side-box-title {
-            background: linear-gradient(to bottom, #606060, #333333);
-            color: #fff;
-            padding: 4px 8px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .side-box-content {
-            padding: 8px;
-            font-size: 11px;
-            line-height: 1.4;
-        }
-        .side-box-content a {
-            color: #0000cc;
-            text-decoration: underline;
-            font-weight: bold;
-        }
     </style>
 </head>
-<body style="background: #e1e1e1; margin: 0; padding: 20px;">
+<body>
 
-    <div class="money-container">
-        <!-- Earnings Breakdown -->
-        <div class="earnings-panel">
-            <div class="earnings-title">Earnings Summary</div>
-            <table class="earnings-table">
-                <!-- Past Day -->
-                <tr><td colspan="2" class="time-header">Past Day</td><td style="text-align:right; font-weight:bold; color:#cc6600;">Tix</td><td style="text-align:right; font-weight:bold; color:#008000;">R$</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;" id="day-tix-login">10</td><td style="text-align:right;" id="day-robux-login">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;" id="day-tix-traffic">0</td><td style="text-align:right;" id="day-robux-traffic">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;" id="day-tix-sales">0</td><td style="text-align:right;" id="day-robux-sales">0</td></tr>
-                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;" id="day-tix-total">10</td><td style="text-align:right; color:#008000;" id="day-robux-total">0</td></tr>
-
-                <!-- Past Week -->
-                <tr><td colspan="2" class="time-header">Past Week</td><td></td><td></td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">70</td><td style="text-align:right;">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">5</td><td style="text-align:right;">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
-                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;">75</td><td style="text-align:right; color:#008000;">0</td></tr>
-            </table>
+    <div class="main-container">
+        
+        <!-- Header Bar with Greeting & Robux / Tix -->
+        <div class="top-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #f2f2f2; border-bottom: 1px solid #ccc; font-size: 12px;">
+            <div id="user-greeting">
+                <span id="dash-greeting" style="font-weight: bold;">Hi, User</span>
+                <button id="logout-btn" class="btn-classic" style="margin-left: 10px;" onclick="logoutUser()">Logout</button>
+            </div>
+            <div class="currency-display" style="display: flex; gap: 8px; font-weight: bold; font-size: 11px;">
+                <span style="background: #008000; color: #fff; padding: 2px 6px; border-radius: 2px;">R$ <span id="top-robux-count">0</span></span>
+                <span style="background: #d68910; color: #fff; padding: 2px 6px; border-radius: 2px;">T$ <span id="top-tickets-count">0</span></span>
+            </div>
         </div>
 
-        <!-- Sidebar Navigation -->
-        <div class="sidebar-panel">
-            <div class="side-box">
-                <div class="side-box-title">My Money</div>
-                <div class="side-box-content">
-                    • <a href="exchange.html">Trade Currency</a><br>
-                    • <a href="#">Buy ROBUX</a>
+        <!-- Primary Navigation -->
+        <div class="top-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px 0 10px 0; background: linear-gradient(to bottom, #004080, #002b55); color: #fff;">
+            <h1 style="margin: 0 0 5px 0; font-size: 28px;">AeroBLOX</h1>
+            <div class="nav-links" style="display: flex; gap: 6px; font-size: 12px;">
+                <a href="index.html" style="color: #fff; text-decoration: underline; font-weight: bold;">My AeroBLOX</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Games</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Catalog</a> | 
+                <a href="people.html" style="color: #fff; text-decoration: none;">People</a> | 
+                <a href="#" style="color: #fff; text-decoration: none;">Forum</a>
+            </div>
+        </div>
+
+        <!-- Sub Navigation Bar -->
+        <div class="sub-nav" style="background: linear-gradient(to bottom, #e68a00, #cc7a00); padding: 6px 15px; display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 11px; font-weight: bold; border-top: 1px solid #ffa64d; border-bottom: 1px solid #b36b00;">
+            <a href="index.html" style="color: #fff; text-decoration: none;">Home</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Places</a>
+            <a href="inbox.html" style="color: #fff; text-decoration: none;">Inbox</a>
+            <a href="messages.html" style="color: #fff; text-decoration: none;">Messages</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Account</a>
+            <a href="profile.html" style="color: #fff; text-decoration: none;">Profile</a>
+            <a href="friends.html" style="color: #fff; text-decoration: none;">Friends</a>
+            <a href="#" style="color: #fff; text-decoration: none;">Character</a>
+            <a href="index.html#stuff-section" style="color: #fff; text-decoration: none;">Stuff</a>
+            <a href="money.html" style="color: #fff; text-decoration: underline;">Money</a>
+        </div>
+
+        <!-- Dashboard Body -->
+        <div class="dashboard-body" style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
+            
+            <!-- Left Sidebar Navigation Column -->
+            <div class="left-col" style="width: 220px; flex-shrink: 0;">
+                
+                <!-- My Money Navigation Box -->
+                <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Money</div>
+                    <div class="module-content" style="padding: 10px; font-size: 11px; line-height: 1.6;">
+                        • <a href="exchange.html" style="color: #0000cc; font-weight: bold; text-decoration: underline;">Trade Currency</a><br>
+                        • <a href="#" style="color: #0000cc; text-decoration: none;">Buy ROBUX</a>
+                    </div>
+                </div>
+
+                <!-- Balance Summary Box -->
+                <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Your Balance</div>
+                    <div class="module-content" style="padding: 10px; font-size: 11px;">
+                        <p style="margin: 0 0 6px 0;"><strong>Logged in as:</strong> <span id="nav-username">Guest</span></p>
+                        <p style="margin: 0 0 4px 0; color: #008000; font-weight: bold;">R$ Robux: <span id="balance-robux">0</span></p>
+                        <p style="margin: 0; color: #d68910; font-weight: bold;">T$ Tickets: <span id="balance-tickets">0</span></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Main Area: Earnings Table -->
+            <div class="right-col" style="flex-grow: 1;">
+                <div class="module-box" style="border: 1px solid #a6a6a6; background: #fff;">
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Earnings Summary</div>
+                    <div class="module-content" style="padding: 10px;">
+                        <table class="money-table">
+                            <!-- Past Day -->
+                            <tr><td colspan="2" class="time-header">Past Day</td><td style="text-align:right; font-weight:bold; color:#d68910;">Tix</td><td style="text-align:right; font-weight:bold; color:#008000;">R$</td></tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">10</td><td style="text-align:right;">0</td></tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
+                            <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#d68910;">10</td><td style="text-align:right; color:#008000;">0</td></tr>
+
+                            <!-- Past Week -->
+                            <tr><td colspan="2" class="time-header">Past Week</td><td></td><td></td></tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">70</td><td style="text-align:right;">0</td></tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">5</td><td style="text-align:right;">0</td></tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
+                            <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#d68910;">75</td><td style="text-align:right; color:#008000;">0</td></tr>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="side-box">
-                <div class="side-box-title">Your Balance</div>
-                <div class="side-box-content">
-                    <strong>Logged in as:</strong> <span id="nav-username">Guest</span><br><br>
-                    <strong>Robux:</strong> <span id="balance-robux" style="color: #008000; font-weight: bold;">0</span> R$<br>
-                    <strong>Tickets:</strong> <span id="balance-tickets" style="color: #cc6600; font-weight: bold;">0</span> Tix
-                </div>
-            </div>
         </div>
+
     </div>
 
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/money.js" defer></script>
+    <script src="js/music.js" defer></script>
 </body>
 </html>
