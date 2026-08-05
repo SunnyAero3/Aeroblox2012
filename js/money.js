@@ -7,27 +7,28 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function loadUserBalance() {
-    const userId = localStorage.getItem("aeroUserId") || "1";
+    const user = await window.getAuthenticatedUser();
+    const userId = user ? user.id : localStorage.getItem("aeroUserId");
 
-    if (typeof _supabase !== 'undefined') {
-        try {
-            const { data, error } = await _supabase
-                .from("profiles")
-                .select("robux, tickets")
-                .eq("id", userId)
-                .single();
+    if (!userId) return;
 
-            if (error) throw error;
+    try {
+        const { data, error } = await _supabase
+            .from("profiles")
+            .select("robux, tickets")
+            .eq("id", userId)
+            .single();
 
-            if (data) {
-                const robuxEl = document.getElementById("balance-robux");
-                const ticketsEl = document.getElementById("balance-tickets");
+        if (error) throw error;
 
-                if (robuxEl) robuxEl.innerText = data.robux || 0;
-                if (ticketsEl) ticketsEl.innerText = data.tickets || 0;
-            }
-        } catch (err) {
-            console.error("Error loading profile currency balance:", err);
+        if (data) {
+            const robuxEl = document.getElementById("balance-robux");
+            const ticketsEl = document.getElementById("balance-tickets");
+
+            if (robuxEl) robuxEl.innerText = data.robux || 0;
+            if (ticketsEl) ticketsEl.innerText = data.tickets || 0;
         }
+    } catch (err) {
+        console.error("Error loading profile currency balance:", err);
     }
 }
