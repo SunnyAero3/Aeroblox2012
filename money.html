@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroBLOX - My Money</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <style>
+        .money-container {
+            display: flex;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+        }
+        .earnings-panel {
+            flex: 2;
+            background: #fff;
+            border: 1px solid #7f9db9;
+        }
+        .earnings-title {
+            background: linear-gradient(to bottom, #505050, #222222);
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .earnings-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .earnings-table td {
+            padding: 4px 8px;
+            border-bottom: 1px dashed #ccc;
+        }
+        .time-header {
+            font-weight: bold;
+            color: #8b0000;
+            background: #f0f0f0;
+            padding-top: 8px !important;
+        }
+        .sidebar-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .side-box {
+            border: 1px solid #7f9db9;
+            background: #f9f9f9;
+        }
+        .side-box-title {
+            background: linear-gradient(to bottom, #606060, #333333);
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .side-box-content {
+            padding: 8px;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+        .side-box-content a {
+            color: #0000cc;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body style="background: #e1e1e1; margin: 0; padding: 20px;">
+
+    <div class="money-container">
+        <!-- Left Column: Earnings Breakdown -->
+        <div class="earnings-panel">
+            <div class="earnings-title">Earnings</div>
+            <table class="earnings-table">
+                <!-- Past Day -->
+                <tr><td colspan="2" class="time-header">Past Day</td><td style="text-align:right; font-weight:bold; color:#cc6600;">Tix</td><td style="text-align:right; font-weight:bold; color:#008000;">R$</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">10</td><td style="text-align:right;">0</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Builders Club Stipend</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">15</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
+                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;">10</td><td style="text-align:right; color:#008000;">15</td></tr>
+
+                <!-- Past Week -->
+                <tr><td colspan="2" class="time-header">Past Week</td><td></td><td></td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">70</td><td style="text-align:right;">0</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Builders Club Stipend</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">105</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">5</td><td style="text-align:right;">0</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
+                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;">75</td><td style="text-align:right; color:#008000;">105</td></tr>
+
+                <!-- Past Month -->
+                <tr><td colspan="2" class="time-header">Past Month</td><td></td><td></td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">300</td><td style="text-align:right;">0</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Builders Club Stipend</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">450</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">20</td><td style="text-align:right;">0</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">50</td><td style="text-align:right;">10</td></tr>
+                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;">370</td><td style="text-align:right; color:#008000;">460</td></tr>
+            </table>
+        </div>
+
+        <!-- Right Column: Navigation & Info -->
+        <div class="sidebar-panel">
+            <div class="side-box">
+                <div class="side-box-title">My Money</div>
+                <div class="side-box-content">
+                    • <a href="exchange.html">Trade Currency</a><br>
+                    • <a href="#">Buy ROBUX</a>
+                </div>
+            </div>
+
+            <div class="side-box">
+                <div class="side-box-title">What are ROBUX?</div>
+                <div class="side-box-content">
+                    ROBUX is the principal currency of AeroBLOX. Citizens use ROBUX to buy hats, accessories, and places.
+                </div>
+            </div>
+
+            <div class="side-box">
+                <div class="side-box-title">What are Tickets?</div>
+                <div class="side-box-content">
+                    Tickets (Tix) are earned by playing games, logging in daily, and selling items on the Catalog.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
