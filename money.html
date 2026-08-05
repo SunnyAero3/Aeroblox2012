@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
+    <script src="js/music.js" defer></script>
+    <script src="js/money.js" defer></script>
     <style>
         .money-container {
             display: flex;
@@ -74,37 +76,27 @@
 <body style="background: #e1e1e1; margin: 0; padding: 20px;">
 
     <div class="money-container">
-        <!-- Left Column: Earnings Breakdown -->
+        <!-- Earnings Breakdown -->
         <div class="earnings-panel">
-            <div class="earnings-title">Earnings</div>
+            <div class="earnings-title">Earnings Summary</div>
             <table class="earnings-table">
                 <!-- Past Day -->
                 <tr><td colspan="2" class="time-header">Past Day</td><td style="text-align:right; font-weight:bold; color:#cc6600;">Tix</td><td style="text-align:right; font-weight:bold; color:#008000;">R$</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">10</td><td style="text-align:right;">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Builders Club Stipend</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">15</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
-                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;">10</td><td style="text-align:right; color:#008000;">15</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;" id="day-tix-login">10</td><td style="text-align:right;" id="day-robux-login">0</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;" id="day-tix-traffic">0</td><td style="text-align:right;" id="day-robux-traffic">0</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;" id="day-tix-sales">0</td><td style="text-align:right;" id="day-robux-sales">0</td></tr>
+                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;" id="day-tix-total">10</td><td style="text-align:right; color:#008000;" id="day-robux-total">0</td></tr>
 
                 <!-- Past Week -->
                 <tr><td colspan="2" class="time-header">Past Week</td><td></td><td></td></tr>
                 <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">70</td><td style="text-align:right;">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Builders Club Stipend</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">105</td></tr>
                 <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">5</td><td style="text-align:right;">0</td></tr>
                 <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">0</td></tr>
-                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;">75</td><td style="text-align:right; color:#008000;">105</td></tr>
-
-                <!-- Past Month -->
-                <tr><td colspan="2" class="time-header">Past Month</td><td></td><td></td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Login Award</td><td></td><td style="text-align:right;">300</td><td style="text-align:right;">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Builders Club Stipend</td><td></td><td style="text-align:right;">0</td><td style="text-align:right;">450</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Place Traffic Award</td><td></td><td style="text-align:right;">20</td><td style="text-align:right;">0</td></tr>
-                <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sale of Goods</td><td></td><td style="text-align:right;">50</td><td style="text-align:right;">10</td></tr>
-                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;">370</td><td style="text-align:right; color:#008000;">460</td></tr>
+                <tr style="font-weight:bold; background:#e8e8e8;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:right; color:#cc6600;">75</td><td style="text-align:right; color:#008000;">0</td></tr>
             </table>
         </div>
 
-        <!-- Right Column: Navigation & Info -->
+        <!-- Sidebar Navigation -->
         <div class="sidebar-panel">
             <div class="side-box">
                 <div class="side-box-title">My Money</div>
@@ -115,16 +107,10 @@
             </div>
 
             <div class="side-box">
-                <div class="side-box-title">What are ROBUX?</div>
+                <div class="side-box-title">Your Balance</div>
                 <div class="side-box-content">
-                    ROBUX is the principal currency of AeroBLOX. Citizens use ROBUX to buy hats, accessories, and places.
-                </div>
-            </div>
-
-            <div class="side-box">
-                <div class="side-box-title">What are Tickets?</div>
-                <div class="side-box-content">
-                    Tickets (Tix) are earned by playing games, logging in daily, and selling items on the Catalog.
+                    <strong>Robux:</strong> <span id="balance-robux" style="color: #008000; font-weight: bold;">0</span> R$<br>
+                    <strong>Tickets:</strong> <span id="balance-tickets" style="color: #cc6600; font-weight: bold;">0</span> Tix
                 </div>
             </div>
         </div>
