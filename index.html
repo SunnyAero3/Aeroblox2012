@@ -26,7 +26,7 @@
 
         /* 2011 Stuff Layout Styling */
         .stuff-container { border: 1px solid #777; background: #fff; margin: 15px; }
-        .stuff-header { background: linear-gradient(to bottom, #4a4a4a, #2b2b2b); color: #fff; font-weight: bold; padding: 6px 10px; font-size: 13px; }
+        .stuff-header { background: linear-gradient(to bottom, #4a4a4a, #2b2b2b); color: #fff; font-weight: bold; padding: 6px 10px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
         .stuff-body { display: flex; min-height: 380px; }
         .stuff-sidebar { width: 110px; border-right: 1px solid #ccc; background: #fdfdfd; flex-shrink: 0; }
         .stuff-tab-btn { width: 100%; text-align: center; padding: 6px 0; border: none; border-bottom: 1px solid #e0e0e0; background: #f7f7f7; font-size: 10px; cursor: pointer; color: #333; }
@@ -36,9 +36,23 @@
         .stuff-pagination { font-size: 10px; text-align: center; padding: 8px 0; color: #003366; }
         .recommendations-box { border: 1px solid #d0d0d0; border-radius: 4px; padding: 8px; margin-top: 10px; background: #fafafa; }
         .recommendations-title { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 6px; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #fff; padding: 15px; border-radius: 6px; border: 2px solid #003366; width: 80%; max-width: 700px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); max-height: 80vh; overflow-y: auto; }
     </style>
 </head>
 <body>
+
+    <!-- Expansion Overlay Modal for See All -->
+    <div id="expansion-modal" class="modal-overlay" onclick="closeExpansionModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px;">
+                <h3 id="modal-title" style="margin: 0; color: #003366; font-size: 16px;">Collection</h3>
+                <button class="btn-classic" onclick="closeExpansionModal()">✕ Close</button>
+            </div>
+            <div id="modal-grid" class="stuff-grid"></div>
+        </div>
+    </div>
 
     <div class="main-container">
         
@@ -119,7 +133,7 @@
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
                     <div class="module-header" id="dash-best-friends-title" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                         <span>Best Friends</span>
-                        <a href="friends.html?view=best" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
+                        <a href="javascript:void(0)" onclick="openExpansionModal('Best Friends')" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
                     </div>
                     <div class="module-content" id="dash-best-friends-container" style="padding: 10px;">
                         <p style="font-size: 11px; color: #666; margin: 0;">Loading...</p>
@@ -130,7 +144,7 @@
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
                     <div class="module-header" id="dash-friends-title" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                         <span id="friends-header-label">Friends</span>
-                        <a href="friends.html" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
+                        <a href="javascript:void(0)" onclick="openExpansionModal('Friends')" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
                     </div>
                     <div class="module-content" id="dash-friends-container" style="padding: 10px;">
                         <p style="font-size: 11px; color: #666; margin: 0;">Loading...</p>
@@ -156,7 +170,7 @@
                     <div class="module-content" style="padding: 10px;">
                         <label style="display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px;">Right now I'm:</label>
                         <div style="display: flex; gap: 6px;">
-                            <input type="text" id="status-input" placeholder="What are you up to?" style="flex-grow: 1; padding: 4px; border: 1px solid #999; border-radius: 2px;">
+                            <input type="text" id="status-input" maxlength="60" placeholder="What are you up to?" style="flex-grow: 1; padding: 4px; border: 1px solid #999; border-radius: 2px;">
                             <button class="btn-classic" onclick="updateStatus()">Update Status</button>
                         </div>
                     </div>
@@ -172,9 +186,12 @@
 
                 <!-- My Places Box -->
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
-                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">My Places</div>
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                        <span>My Places</span>
+                        <a href="javascript:void(0)" onclick="openExpansionModal('Places')" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
+                    </div>
                     <div class="module-content" style="padding: 10px;">
-                        <div class="item-card" style="width: 120px;">
+                        <div class="item-card" style="width: 120px; cursor: pointer;" onclick="window.location.href='templates/place.html?id=starter'">
                             <div class="item-thumb" style="height: 70px;">Place</div>
                             <strong style="display: block; color: #003366;">Starter Place</strong>
                             <span style="font-size: 10px; color: #666;">Visits: <span id="dash-place-visits">0</span></span>
@@ -184,7 +201,10 @@
 
                 <!-- AeroBLOX Badges Box -->
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
-                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">AeroBLOX Badges</div>
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                        <span>AeroBLOX Badges</span>
+                        <a href="javascript:void(0)" onclick="openExpansionModal('Badges')" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
+                    </div>
                     <div class="module-content" style="padding: 10px;">
                         <div class="badge-grid" id="dash-aeroblox-badges-container">
                             <p style="font-size: 11px; color: #666; margin: 0;">Loading...</p>
@@ -194,7 +214,10 @@
 
                 <!-- Player Badges Box -->
                 <div class="module-box" style="margin-bottom: 15px; border: 1px solid #a6a6a6; background: #fff;">
-                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold;">Player Badges</div>
+                    <div class="module-header" style="background: linear-gradient(to bottom, #4c5d73, #2d3846); color: #fff; padding: 5px 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Player Badges</span>
+                        <a href="javascript:void(0)" onclick="openExpansionModal('Player Badges')" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
+                    </div>
                     <div class="module-content" style="padding: 10px;">
                         <div class="badge-grid" id="dash-player-badges-container">
                             <p style="font-size: 11px; color: #666; margin: 0;">No player badges earned yet.</p>
@@ -216,7 +239,10 @@
 
         <!-- CLASSIC 2011 "STUFF" / INVENTORY SECTION -->
         <div id="stuff-section" class="stuff-container">
-            <div class="stuff-header">Stuff</div>
+            <div class="stuff-header">
+                <span>Stuff (Creations & Inventory)</span>
+                <a href="javascript:void(0)" onclick="openExpansionModal('Creations & Inventory')" style="color: #fff; font-size: 10px; font-weight: normal; text-decoration: underline;">See All</a>
+            </div>
             <div class="stuff-body">
                 
                 <!-- Left Category Navigation Sidebar -->
@@ -264,6 +290,36 @@
         </div>
 
     </div>
+
+    <!-- Expansion Overlay Logic JS -->
+    <script>
+        function openExpansionModal(sectionTitle) {
+            const modal = document.getElementById("expansion-modal");
+            const titleEl = document.getElementById("modal-title");
+            const gridEl = document.getElementById("modal-grid");
+
+            titleEl.innerText = `${sectionTitle} - Full Collection`;
+            gridEl.innerHTML = `<p style="font-size:11px; color:#666;">Loading complete grid...</p>`;
+            modal.style.display = "flex";
+
+            if (sectionTitle === "Friends" || sectionTitle === "Best Friends") {
+                const list = (currentUserData && currentUserData[sectionTitle === "Best Friends" ? 'best_friends' : 'friends']) || [];
+                gridEl.innerHTML = list.length === 0 ? `<p style="font-size:11px; color:#666;">No items found.</p>` : list.map(f => `
+                    <div class="item-card" style="width: 110px;">
+                        <div class="item-thumb" style="font-size:24px;">👤</div>
+                        <strong style="font-size:11px; color:#003366;">${f}</strong>
+                        <button class="btn-classic" style="margin-top:4px; font-size:9px;" onclick="window.location.href='profile.html?user=${encodeURIComponent(f)}'">View Profile</button>
+                    </div>
+                `).join('');
+            } else {
+                loadInventorySection('modal-grid', getLoggedInUser(), 'All');
+            }
+        }
+
+        function closeExpansionModal() {
+            document.getElementById("expansion-modal").style.display = "none";
+        }
+    </script>
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
